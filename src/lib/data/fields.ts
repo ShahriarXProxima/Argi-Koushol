@@ -1,6 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
-import type { Field, SensorReading, WeatherLog, Decision, YieldPrediction, Detection } from "@prisma/client";
+import type { Field, SensorReading, WeatherLog, Decision, YieldPrediction, Detection, Sensor } from "@prisma/client";
 
 export interface FieldWithDetails extends Field {
   latestReading?: SensorReading | null;
@@ -8,6 +8,7 @@ export interface FieldWithDetails extends Field {
   activeDecisions: Decision[];
   yieldPrediction?: YieldPrediction | null;
   detections: Detection[];
+  sensors: Sensor[];
 }
 
 /**

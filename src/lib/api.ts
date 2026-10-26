@@ -53,6 +53,19 @@ export function handleZodError(error: ZodError): NextResponse<ApiErrorResponse> 
 }
 
 /**
+ * Check if an error is a Next.js internal prerender/bailout interruption
+ */
+export function isNextPrerenderError(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "digest" in error &&
+    typeof (error as { digest?: string }).digest === "string" &&
+    (error as { digest: string }).digest.startsWith("NEXT_")
+  );
+}
+
+/**
  * Verifies that the request contains the valid internal x-api-key header
  */
 export function verifyApiKey(request: Request): boolean {

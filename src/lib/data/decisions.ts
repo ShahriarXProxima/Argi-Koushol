@@ -193,3 +193,17 @@ export async function overrideDecision(input: OverrideDecisionInput) {
 
   return { decision: updatedDecision, alert };
 }
+
+/**
+ * Retrieve all decisions for a field, newest first
+ */
+export async function getFieldDecisions(fieldId: string) {
+  return prisma.decision.findMany({
+    where: { fieldId },
+    orderBy: { createdAt: "desc" },
+    include: {
+      detection: true,
+      alerts: true,
+    },
+  });
+}

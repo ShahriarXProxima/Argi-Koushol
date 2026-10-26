@@ -13,7 +13,9 @@ export function AppShell({ children }: AppShellProps) {
   return (
     <div className="flex min-h-screen bg-background text-foreground">
       {/* Desktop sidebar */}
-      <Sidebar />
+      <React.Suspense fallback={<aside className="hidden md:flex md:w-64 md:flex-col md:inset-y-0 bg-sidebar border-r border-sidebar-border" />}>
+        <Sidebar />
+      </React.Suspense>
 
       {/* Main content wrapper */}
       <div className="flex flex-1 flex-col overflow-x-hidden">
@@ -24,7 +26,9 @@ export function AppShell({ children }: AppShellProps) {
       </div>
 
       {/* Mobile bottom tab navigation */}
-      <MobileTabBar />
+      <React.Suspense fallback={null}>
+        <MobileTabBar />
+      </React.Suspense>
 
       {/* Fixed bottom-right chat dock */}
       <ChatDock />

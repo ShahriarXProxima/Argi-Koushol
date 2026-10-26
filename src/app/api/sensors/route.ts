@@ -1,7 +1,7 @@
 import { type NextRequest } from "next/server";
 import { z } from "zod";
 import { getSensors, getReadings, recordSensorReading } from "@/lib/data/sensors";
-import { jsonSuccess, jsonError, handleZodError, requireApiKey } from "@/lib/api";
+import { jsonSuccess, jsonError, handleZodError, requireApiKey, isNextPrerenderError } from "@/lib/api";
 
 const recordReadingSchema = z.object({
   fieldId: z.string().min(1, "fieldId is required"),
@@ -40,6 +40,7 @@ export async function GET(request: NextRequest) {
     const sensors = await getSensors();
     return jsonSuccess({ sensors, count: sensors.length });
   } catch (error) {
+    if (isNextPrerenderError(error)) throw error;
     console.error("Error fetching sensor data:", error);
     return jsonError("INTERNAL_ERROR", "Failed to retrieve sensor data.", 500);
   }

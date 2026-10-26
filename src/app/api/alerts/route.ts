@@ -1,6 +1,6 @@
 import { type NextRequest } from "next/server";
 import { getAlerts } from "@/lib/data/alerts";
-import { jsonSuccess, jsonError } from "@/lib/api";
+import { jsonSuccess, jsonError, isNextPrerenderError } from "@/lib/api";
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
     const alerts = await getAlerts({ unreadOnly, fieldId, limit });
     return jsonSuccess({ alerts, count: alerts.length });
   } catch (error) {
+    if (isNextPrerenderError(error)) throw error;
     console.error("Error retrieving alerts:", error);
     return jsonError("INTERNAL_ERROR", "Failed to retrieve alerts.", 500);
   }
