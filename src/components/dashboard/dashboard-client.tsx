@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SimulatedBadge } from "@/components/simulated-badge";
 import { RefreshCw, MapPin } from "lucide-react";
+import { DroneScanDialog } from "@/components/drone/drone-scan-dialog";
 import type { DashboardKpis } from "@/lib/data/kpis";
 import type { MapFieldItem } from "./field-map-inner";
 
@@ -56,7 +57,8 @@ export function DashboardClient({
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <DroneScanDialog defaultFieldId={selectedField?.id} />
           <Badge
             variant="outline"
             className="h-8 gap-1.5 px-3 rounded-xl border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"

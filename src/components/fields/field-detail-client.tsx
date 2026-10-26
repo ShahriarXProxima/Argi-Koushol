@@ -23,7 +23,9 @@ import {
   History,
   AlertCircle,
   CheckCircle2,
+  Plane,
 } from "lucide-react";
+import { DroneScanDialog } from "@/components/drone/drone-scan-dialog";
 import { toast } from "sonner";
 import type { FieldWithDetails } from "@/lib/data/fields";
 import type { SensorReading, Decision } from "@prisma/client";
@@ -178,13 +180,25 @@ export function FieldDetailClient({ field, readings, decisions }: FieldDetailCli
             </div>
           </div>
 
-          {/* Quick Action Button: Ask Shoshsho-Prohori */}
+          {/* Quick Action Button: Ask Shoshsho-Prohori & Drone Scan */}
           <div className="flex flex-col sm:flex-row lg:flex-col gap-2.5 shrink-0">
+            <DroneScanDialog
+              defaultFieldId={field.id}
+              trigger={
+                <Button
+                  className="rounded-xl h-11 px-5 bg-gradient-to-r from-emerald-600 to-teal-700 text-white font-semibold shadow-sm hover:shadow transition-all hover:from-emerald-700 hover:to-teal-800 flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Plane className="size-4" />
+                  <span>ড্রোন স্ক্যান সিমুলেট (Simulate Scan)</span>
+                </Button>
+              }
+            />
             <Button
               onClick={handleAskShoshshoProhori}
-              className="rounded-xl h-11 px-5 bg-primary text-primary-foreground font-semibold shadow-sm hover:shadow transition-all hover:bg-primary/95 flex items-center justify-center gap-2 cursor-pointer group"
+              variant="outline"
+              className="rounded-xl h-11 px-5 font-semibold shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer group"
             >
-              <MessageSquareText className="size-4 group-hover:scale-110 transition-transform text-white" />
+              <MessageSquareText className="size-4 group-hover:scale-110 transition-transform text-primary" />
               <span>এই জমি নিয়ে শস্য-প্রহরীকে জিজ্ঞাসা করুন</span>
             </Button>
             <div className="text-[11px] text-muted-foreground text-center lg:text-right">

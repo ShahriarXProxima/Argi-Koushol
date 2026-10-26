@@ -54,7 +54,7 @@ const FIELD_POLYGONS = {
   },
 };
 
-async function main() {
+export async function seedDatabase() {
   console.log("🌱 Starting Agri-Koushol database seed...");
 
   // 1. Clean existing records in dependency order for idempotency
@@ -481,11 +481,13 @@ async function main() {
   console.log("✅ Seed completed successfully!");
 }
 
-main()
-  .catch((e) => {
-    console.error("❌ Seed error:", e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+if (process.argv[1]?.includes("seed")) {
+  seedDatabase()
+    .catch((e) => {
+      console.error("❌ Seed error:", e);
+      process.exit(1);
+    })
+    .finally(async () => {
+      await prisma.$disconnect();
+    });
+}

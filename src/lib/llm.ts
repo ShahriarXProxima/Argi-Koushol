@@ -334,3 +334,162 @@ export class GeminiProvider implements LLMProvider {
 
 // Default export provider instance
 export const defaultLLMProvider = new GeminiProvider();
+
+// ============================================================================
+// Crop Guardian Vision Classification
+// ============================================================================
+
+export interface ClassifyLeafOptions {
+  imageBase64?: string;
+  mimeType?: string;
+  stagedImage?: string; // "late_blight" | "early_blight" | "leaf_spot" | "healthy"
+  forceStaged?: boolean;
+}
+
+export interface ClassifyLeafResult {
+  label: string;
+  confidence: number;
+  symptoms: string[];
+  staged: boolean;
+}
+
+export const STAGED_CLASSIFICATIONS: Record<
+  string,
+  { label: string; confidence: number; symptoms: string[] }
+> = {
+  late_blight: {
+    label: "Late Blight (আলুর নাবি ধসা)",
+    confidence: 0.94,
+    symptoms: [
+      "Dark water-soaked necrotic lesions on foliage",
+      "Pale yellowish margins with active sporulation",
+      "High probability of rapid foliar collapse under high humidity",
+    ],
+  },
+  early_blight: {
+    label: "Early Blight (আগাম ধসা)",
+    confidence: 0.88,
+    symptoms: [
+      "Concentric ring target-like lesions on leaves",
+      "Yellow chlorotic halos around dark necrotic centers",
+      "Senescence and premature defoliation of lower leaves",
+    ],
+  },
+  leaf_spot: {
+    label: "Bacterial Leaf Spot (পাতার দাগ রোগ)",
+    confidence: 0.84,
+    symptoms: [
+      "Small angular water-soaked lesions across leaf blades",
+      "Brown to black necrotic centers with yellow margins",
+      "Translucent halo under direct sunlight inspection",
+    ],
+  },
+  healthy: {
+    label: "Healthy Crop (সুস্থ ফসল)",
+    confidence: 0.98,
+    symptoms: [
+      "Uniform lush green foliar pigmentation",
+      "Intact vascular leaf venation without pathogen lesions",
+      "Strong chlorophyll vigor and turgid cellular morphology",
+    ],
+  },
+};
+
+/**
+ * Classifies a crop leaf image using the Gemini vision model.
+ * If DEMO_STAGED=true, forceStaged=true, or the vision call fails, returns the known
+ * label for the staged image instead and marks the detection as staged.
+ */
+export async function classifyLeafImage(options: ClassifyLeafOptions): Promise<ClassifyLeafResult> {
+  const isDemoStagedEnv = process.env.DEMO_STAGED === "true";
+  const normalizedStagedKey = options.stagedImage
+    ? options.stagedImage.replace(/\.[^/.]+$/, "").toLowerCase()
+    : "healthy";
+
+  const stagedFallback =
+    STAGED_CLASSIFICATIONS[normalizedStagedKey] || STAGED_CLASSIFICATIONS.healthy;
+
+  // 1. Check if staged mode is enforced
+  if (options.forceStaged || isDemoStagedEnv || !options.imageBase64) {
+    console.log(`[classifyLeafImage] Returning staged classification for '${normalizedStagedKey}' (DEMO_STAGED=${isDemoStagedEnv})`);
+    return {
+      label: stagedFallback.label,
+      confidence: stagedFallback.confidence,
+      symptoms: stagedFallback.symptoms,
+      staged: true,
+    };
+  }
+
+  // 2. Attempt real Gemini Vision Classification
+  const apiKey = process.env.GEMINI_API_KEY?.trim();
+  if (apiKey && apiKey.length > 0 && !apiKey.includes("your-")) {
+    try {
+      const ai = new GoogleGenAI({ apiKey });
+      const model = process.env.LLM_MODEL || "gemini-2.5-flash";
+
+      const promptText =
+        "You are an expert plant pathologist. Analyze this agricultural crop leaf image for disease or health status. " +
+        "Classify the pathogen into one of: 'Late Blight (আলুর নাবি ধসা)', 'Early Blight (আগাম ধসা)', 'Bacterial Leaf Spot (পাতার দাগ রোগ)', or 'Healthy (সুস্থ ফসল)'. " +
+        "Output ONLY a strict JSON object matching the schema: { label: string, confidence: number (0.0 to 1.0), symptoms: string[] }.";
+
+      const response = await ai.models.generateContent({
+        model,
+        contents: [
+          {
+            role: "user",
+            parts: [
+              { text: promptText },
+              {
+                inlineData: {
+                  mimeType: options.mimeType || "image/jpeg",
+                  data: options.imageBase64,
+                },
+              },
+            ],
+          },
+        ],
+        config: {
+          responseMimeType: "application/json",
+          responseJsonSchema: {
+            type: "object",
+            properties: {
+              label: { type: "string" },
+              confidence: { type: "number" },
+              symptoms: {
+                type: "array",
+                items: { type: "string" },
+              },
+            },
+            required: ["label", "confidence", "symptoms"],
+          },
+        },
+      });
+
+      const responseText = response.text?.trim() || "";
+      const cleaned = responseText
+        .replace(/```json/gi, "")
+        .replace(/```/g, "")
+        .trim();
+
+      const parsed = JSON.parse(cleaned);
+      if (parsed.label && typeof parsed.confidence === "number") {
+        return {
+          label: parsed.label,
+          confidence: Math.min(1.0, Math.max(0.0, parsed.confidence)),
+          symptoms: Array.isArray(parsed.symptoms) ? parsed.symptoms : [],
+          staged: false,
+        };
+      }
+    } catch (err) {
+      console.warn("[classifyLeafImage] Gemini Vision classification failed. Falling back to staged result:", err);
+    }
+  }
+
+  // 3. Fallback to staged classification
+  return {
+    label: stagedFallback.label,
+    confidence: stagedFallback.confidence,
+    symptoms: stagedFallback.symptoms,
+    staged: true,
+  };
+}
