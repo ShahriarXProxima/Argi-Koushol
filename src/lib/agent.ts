@@ -105,6 +105,7 @@ export async function runAgent(options: RunAgentOptions): Promise<RunAgentResult
 
           // Call MCP Tool
           const toolResult = await callMcpTool(tc.name, tc.args);
+          tc.result = toolResult;
 
           // Emit tool_result event
           await emit({

@@ -12,6 +12,7 @@ export interface LLMToolCall {
   name: string;
   args: Record<string, unknown>;
   id?: string;
+  result?: string;
 }
 
 export interface LLMMessage {
