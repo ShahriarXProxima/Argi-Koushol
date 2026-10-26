@@ -2,13 +2,23 @@
 
 import * as React from "react";
 import Link from "next/link";
+import useSWR from "swr";
 import { Bell, Leaf, MapPin } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { LanguageToggle } from "@/components/language-toggle";
 import { ThemeToggle } from "@/components/theme-toggle";
 
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
 export function TopBar() {
+  const { data } = useSWR<{ count: number }>(
+    "/api/alerts?unreadOnly=true",
+    fetcher,
+    { refreshInterval: 5000, revalidateOnFocus: true }
+  );
+
+  const unreadCount = data?.count ?? 0;
   return (
     <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-border/70 bg-background/90 px-4 backdrop-blur-md md:px-6">
       {/* Brand / Title for mobile & farmer context */}
@@ -72,10 +82,14 @@ export function TopBar() {
             className="relative size-9 rounded-xl border border-border/60 hover:bg-secondary/80 text-foreground transition-colors"
           >
             <Bell className="size-4.5" />
-            <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground shadow-xs animate-pulse">
-              3
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground shadow-xs animate-pulse">
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </span>
+            )}
+            <span className="sr-only">
+              {unreadCount > 0 ? `${unreadCount} unread farm alerts` : "Farm alerts"}
             </span>
-            <span className="sr-only">3 unread farm alerts</span>
           </Button>
         </Link>
 

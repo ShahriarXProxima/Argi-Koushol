@@ -32,14 +32,36 @@ export async function getAlerts(options?: GetAlertsOptions) {
     },
     include: {
       field: {
-        select: { id: true, name: true, crop: true },
+        select: {
+          id: true,
+          name: true,
+          crop: true,
+          detections: {
+            take: 1,
+            orderBy: { createdAt: "desc" },
+          },
+        },
       },
       decision: {
-        select: { id: true, action: true, status: true, reasoning: true },
+        include: {
+          detection: true,
+        },
       },
     },
     orderBy: { createdAt: "desc" },
     take: limit,
+  });
+}
+
+export type AlertWithDetails = Awaited<ReturnType<typeof getAlerts>>[number];
+
+/**
+ * Mark all unread alerts as read
+ */
+export async function markAllAlertsRead() {
+  return prisma.alert.updateMany({
+    where: { read: false },
+    data: { read: true },
   });
 }
 

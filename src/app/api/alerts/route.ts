@@ -1,5 +1,5 @@
 import { type NextRequest } from "next/server";
-import { getAlerts } from "@/lib/data/alerts";
+import { getAlerts, markAllAlertsRead } from "@/lib/data/alerts";
 import { jsonSuccess, jsonError, isNextPrerenderError } from "@/lib/api";
 
 export async function GET(request: NextRequest) {
@@ -15,5 +15,16 @@ export async function GET(request: NextRequest) {
     if (isNextPrerenderError(error)) throw error;
     console.error("Error retrieving alerts:", error);
     return jsonError("INTERNAL_ERROR", "Failed to retrieve alerts.", 500);
+  }
+}
+
+export async function PATCH() {
+  try {
+    const result = await markAllAlertsRead();
+    return jsonSuccess({ success: true, updatedCount: result.count });
+  } catch (error) {
+    if (isNextPrerenderError(error)) throw error;
+    console.error("Error marking all alerts as read:", error);
+    return jsonError("INTERNAL_ERROR", "Failed to mark all alerts as read.", 500);
   }
 }
