@@ -1,6 +1,7 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import { createAlert } from "./alerts";
+import { recomputeFieldYieldPrediction } from "./yield";
 import type { DecisionAction, DecisionStatus, DecisionSource, AlertSeverity } from "@prisma/client";
 
 export class SafetyViolationError extends Error {
@@ -102,6 +103,13 @@ export async function createDecision(input: CreateDecisionInput) {
     source: input.source,
   });
 
+  // Recompute field yield prediction after new Decision
+  try {
+    await recomputeFieldYieldPrediction(input.fieldId);
+  } catch (err) {
+    console.error("Failed to recompute yield after decision:", err);
+  }
+
   return { decision, alert };
 }
 
@@ -190,6 +198,13 @@ export async function overrideDecision(input: OverrideDecisionInput) {
     source: "MANUAL",
     whatsappStatus: "LOGGED",
   });
+
+  // Recompute field yield prediction after override
+  try {
+    await recomputeFieldYieldPrediction(decision.fieldId);
+  } catch (err) {
+    console.error("Failed to recompute yield after override:", err);
+  }
 
   return { decision: updatedDecision, alert };
 }
