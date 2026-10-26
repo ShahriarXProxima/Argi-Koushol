@@ -1,0 +1,190 @@
+"use client";
+
+import * as React from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import {
+  LayoutDashboard,
+  Sprout,
+  Bell,
+  TrendingUp,
+  Settings,
+  Leaf,
+  ShieldAlert,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+
+export const NAV_ITEMS = [
+  {
+    name: "Dashboard",
+    nameBn: "ড্যাশবোর্ড",
+    href: "/",
+    icon: LayoutDashboard,
+  },
+  {
+    name: "Fields",
+    nameBn: "মাঠ ও ফসল",
+    href: "/fields",
+    icon: Sprout,
+  },
+  {
+    name: "Alerts",
+    nameBn: "সতর্কবার্তা",
+    href: "/alerts",
+    icon: Bell,
+    badge: 3,
+  },
+  {
+    name: "YieldMax",
+    nameBn: "ফলন অপ্টিমাইজার",
+    href: "/yieldmax",
+    icon: TrendingUp,
+  },
+  {
+    name: "Settings",
+    nameBn: "সেটিংস",
+    href: "/settings",
+    icon: Settings,
+  },
+];
+
+export function Sidebar() {
+  const pathname = usePathname();
+
+  return (
+    <aside className="hidden md:flex md:w-64 md:flex-col md:inset-y-0 bg-sidebar border-r border-sidebar-border select-none">
+      {/* Brand Header */}
+      <div className="flex h-16 items-center gap-3 px-6 border-b border-sidebar-border">
+        <div className="flex size-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
+          <Leaf className="size-5.5" />
+        </div>
+        <div className="flex flex-col">
+          <span className="text-base font-bold tracking-tight text-sidebar-foreground">
+            কৃষি কৌশল
+          </span>
+          <span className="text-[11px] font-medium tracking-wide text-primary">
+            Agri-Koushol Platform
+          </span>
+        </div>
+      </div>
+
+      {/* Navigation Links */}
+      <div className="flex-1 px-3 py-5 space-y-1 overflow-y-auto">
+        <div className="px-3 pb-2 text-[11px] font-bold tracking-wider text-muted-foreground uppercase">
+          মূল নেভিগেশন (Navigation)
+        </div>
+        {NAV_ITEMS.map((item) => {
+          const isActive =
+            pathname === item.href ||
+            (item.href !== "/" && pathname.startsWith(item.href));
+          const Icon = item.icon;
+
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "group flex items-center justify-between rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all",
+                isActive
+                  ? "bg-primary text-primary-foreground shadow-xs font-semibold"
+                  : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              )}
+            >
+              <div className="flex items-center gap-3">
+                <Icon
+                  className={cn(
+                    "size-5 transition-transform group-hover:scale-105",
+                    isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-sidebar-foreground"
+                  )}
+                />
+                <div className="flex flex-col text-left">
+                  <span className="leading-tight">{item.name}</span>
+                  <span
+                    className={cn(
+                      "text-[10px] leading-tight",
+                      isActive ? "text-primary-foreground/80 font-normal" : "text-muted-foreground"
+                    )}
+                  >
+                    {item.nameBn}
+                  </span>
+                </div>
+              </div>
+
+              {item.badge ? (
+                <Badge
+                  variant="destructive"
+                  className={cn(
+                    "h-5 min-w-5 px-1.5 text-[10px] font-bold rounded-full justify-center",
+                    isActive ? "bg-white text-destructive hover:bg-white" : ""
+                  )}
+                >
+                  {item.badge}
+                </Badge>
+              ) : null}
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* Farm Safety Quick Status Footer */}
+      <div className="p-4 m-3 rounded-2xl bg-secondary/60 border border-sidebar-border">
+        <div className="flex items-center gap-2 mb-1.5">
+          <ShieldAlert className="size-4 text-primary" />
+          <span className="text-xs font-bold text-foreground">AI ফসল সুরক্ষা নীতি</span>
+        </div>
+        <p className="text-[11px] text-muted-foreground leading-relaxed">
+          বৃষ্টির সম্ভাবনা &gt; ৫০% হলে স্প্রে স্বয়ংক্রিয়ভাবে স্থগিত থাকে।
+        </p>
+      </div>
+    </aside>
+  );
+}
+
+export function MobileTabBar() {
+  const pathname = usePathname();
+
+  return (
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-40 flex h-16 border-t border-border/80 bg-background/95 backdrop-blur-md md:hidden px-2 pb-safe"
+      aria-label="Mobile Navigation Bar"
+    >
+      <div className="grid h-full w-full grid-cols-5 items-center">
+        {NAV_ITEMS.map((item) => {
+          const isActive =
+            pathname === item.href ||
+            (item.href !== "/" && pathname.startsWith(item.href));
+          const Icon = item.icon;
+
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "relative flex h-full flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors touch-manipulation",
+                isActive
+                  ? "text-primary font-bold"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <div className="relative">
+                <Icon className={cn("size-5", isActive && "stroke-[2.5]")} />
+                {item.badge ? (
+                  <span className="absolute -top-1 -right-2 flex size-3.5 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-destructive-foreground">
+                    {item.badge}
+                  </span>
+                ) : null}
+              </div>
+              <span className="truncate max-w-[56px] text-[10px]">
+                {item.name}
+              </span>
+              {isActive ? (
+                <span className="absolute bottom-1 h-1 w-5 rounded-full bg-primary" />
+              ) : null}
+            </Link>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}
