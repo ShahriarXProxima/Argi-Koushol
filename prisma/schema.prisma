@@ -8,4 +8,204 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// Initial placeholder models for Agri-Koushol will be added via migrations
+// ---------------------------------------------------------
+// ENUMS
+// ---------------------------------------------------------
+
+enum DecisionAction {
+  SPRAY_NOW
+  DELAY_SPRAY
+  IRRIGATE
+  PAUSE_IRRIGATION
+  INSPECT
+  NO_ACTION
+}
+
+enum DecisionStatus {
+  PENDING
+  SCHEDULED
+  COMPLETED
+  OVERRIDDEN
+  CANCELLED
+}
+
+enum DecisionSource {
+  N8N
+  CHATBOT
+  MANUAL
+}
+
+enum AlertSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+// ---------------------------------------------------------
+// MODELS
+// ---------------------------------------------------------
+
+model Field {
+  id                     String            @id @default(cuid())
+  name                   String
+  crop                   String
+  growthStage            String
+  plantedOn              DateTime
+  cropDurationDays       Int
+  lat                    Float
+  lng                    Float
+  areaHa                 Float
+  polygon                Json
+  soilMoistureThreshold  Float             @default(35)
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
+
+  sensors                Sensor[]
+  readings               SensorReading[]
+  weatherLogs            WeatherLog[]
+  detections             Detection[]
+  decisions              Decision[]
+  alerts                 Alert[]
+  yieldPredictions       YieldPrediction[]
+
+  @@index([name])
+}
+
+model Sensor {
+  id        String    @id @default(cuid())
+  fieldId   String
+  field     Field     @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  type      String
+  label     String
+  lastValue Float?
+  lastSeen  DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([fieldId])
+  @@index([type])
+}
+
+model SensorReading {
+  id           String   @id @default(cuid())
+  fieldId      String
+  field        Field    @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  soilMoisture Float
+  temperature  Float
+  humidity     Float
+  ph           Float?
+  recordedAt   DateTime @default(now())
+  createdAt    DateTime @default(now())
+
+  @@index([fieldId, recordedAt])
+}
+
+model WeatherLog {
+  id                String   @id @default(cuid())
+  fieldId           String
+  field             Field    @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  forecast          Json
+  rainProbability6h Float
+  rainMm48h         Float
+  tempMax           Float
+  fetchedAt         DateTime @default(now())
+  createdAt         DateTime @default(now())
+
+  @@index([fieldId, fetchedAt])
+}
+
+model Detection {
+  id         String     @id @default(cuid())
+  fieldId    String
+  field      Field      @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  label      String
+  confidence Float
+  imageUrl   String
+  lat        Float?
+  lng        Float?
+  status     String     @default("PENDING")
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  decisions  Decision[]
+
+  @@index([fieldId])
+  @@index([status])
+}
+
+model Decision {
+  id           String         @id @default(cuid())
+  fieldId      String
+  field        Field          @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  detectionId  String?
+  detection    Detection?     @relation(fields: [detectionId], references: [id], onDelete: SetNull)
+  action       DecisionAction
+  reasoning    String
+  scheduledFor DateTime?
+  status       DecisionStatus @default(PENDING)
+  source       DecisionSource @default(N8N)
+  simulated    Boolean        @default(true)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  alerts       Alert[]
+
+  @@index([fieldId])
+  @@index([status])
+  @@index([action])
+}
+
+model Alert {
+  id             String        @id @default(cuid())
+  fieldId        String
+  field          Field         @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  decisionId     String?
+  decision       Decision?     @relation(fields: [decisionId], references: [id], onDelete: SetNull)
+  severity       AlertSeverity
+  title          String
+  message        String
+  messageBn      String?
+  source         String
+  read           Boolean       @default(false)
+  whatsappStatus String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([fieldId])
+  @@index([read])
+  @@index([severity])
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  sessionId String
+  role      String
+  content   String
+  toolCalls Json?
+  createdAt DateTime @default(now())
+
+  @@index([sessionId, createdAt])
+}
+
+model YieldPrediction {
+  id          String   @id @default(cuid())
+  fieldId     String
+  field       Field    @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  tonsPerHa   Float
+  harvestDate DateTime
+  confidence  Float
+  factors     Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([fieldId])
+}
+
+model AppSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
