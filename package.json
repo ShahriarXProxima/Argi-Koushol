@@ -9,7 +9,8 @@
     "lint": "eslint",
     "test": "tsx --test tests/**/*.test.ts",
     "db:seed": "tsx prisma/seed.ts",
-    "mcp": "node -e \"console.log('Agri-Koushol MCP Server placeholder')\"",
+    "mcp": "tsx mcp-server/index.ts",
+    "mcp:test": "tsx mcp-server/test-client.ts",
     "postinstall": "prisma skills sync || exit 0"
   },
   "dependencies": {
@@ -20,6 +21,7 @@
     "@supabase/supabase-js": "^2.118.0",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.5.0",
+    "express": "^5.3.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^1.61.0",
     "next": "16.4.3",
@@ -37,6 +39,7 @@
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",
+    "@types/express": "^5.0.6",
     "@types/leaflet": "^1.9.22",
     "@types/node": "^20",
     "@types/react": "^19",
