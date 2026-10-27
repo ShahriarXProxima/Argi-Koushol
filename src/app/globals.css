@@ -50,54 +50,54 @@
 }
 
 :root {
-  /* Warm Earth & Deep Lush Green Light Palette */
-  --background: oklch(0.985 0.008 85);
-  --foreground: oklch(0.20 0.03 145);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.20 0.03 145);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.20 0.03 145);
+  /* Warm Earth, Cream & Deep Lush Green Light Palette (Inspiration: Soft Bento Aesthetic) */
+  --background: oklch(0.970 0.010 85); /* #F8F5EE warm linen cream */
+  --foreground: oklch(0.20 0.025 145); /* #18221B deep forest graphite */
+  --card: oklch(0.995 0.003 85); /* #FDFDFB crisp white with subtle warm tint */
+  --card-foreground: oklch(0.20 0.025 145);
+  --popover: oklch(0.995 0.003 85);
+  --popover-foreground: oklch(0.20 0.025 145);
 
   /* Deep Forest Green */
-  --primary: oklch(0.38 0.12 148);
+  --primary: oklch(0.36 0.12 148);
   --primary-foreground: oklch(0.99 0.005 145);
 
-  /* Warm Muted Earth & Sage */
-  --secondary: oklch(0.94 0.025 135);
-  --secondary-foreground: oklch(0.25 0.06 148);
-  --muted: oklch(0.95 0.012 90);
-  --muted-foreground: oklch(0.48 0.03 140);
+  /* Warm Muted Earth & Soft Warm Sand */
+  --secondary: oklch(0.935 0.018 85); /* #EFE9DF soft warm dock/pill bg */
+  --secondary-foreground: oklch(0.24 0.04 148);
+  --muted: oklch(0.945 0.012 85);
+  --muted-foreground: oklch(0.48 0.025 140);
 
   /* Golden Harvest Amber Accent */
   --accent: oklch(0.88 0.12 78);
   --accent-foreground: oklch(0.28 0.08 65);
 
-  /* Red-Orange Danger */
+  /* Red-Orange Danger / Pest Alert */
   --destructive: oklch(0.58 0.22 28);
   --destructive-foreground: oklch(0.99 0 0);
 
-  --border: oklch(0.90 0.015 90);
-  --input: oklch(0.90 0.015 90);
-  --ring: oklch(0.42 0.12 148);
+  --border: oklch(0.895 0.014 85); /* #E4DDD2 soft tactile border */
+  --input: oklch(0.895 0.014 85);
+  --ring: oklch(0.36 0.12 148);
 
-  /* Charts */
+  /* Charts - Warm pastel and nature tones */
   --chart-1: oklch(0.42 0.13 148); /* Forest green */
   --chart-2: oklch(0.75 0.16 72);  /* Harvest amber */
   --chart-3: oklch(0.60 0.13 210); /* Irrigation blue */
   --chart-4: oklch(0.55 0.08 55);  /* Soil loam */
   --chart-5: oklch(0.58 0.22 28);  /* Alert red-orange */
 
-  --radius: 1rem;
+  --radius: 1.25rem; /* 20px base radius for soft organic feel */
 
-  /* Sidebar */
-  --sidebar: oklch(0.97 0.012 120);
-  --sidebar-foreground: oklch(0.20 0.03 145);
-  --sidebar-primary: oklch(0.38 0.12 148);
-  --sidebar-primary-foreground: oklch(0.99 0.005 145);
-  --sidebar-accent: oklch(0.92 0.03 135);
-  --sidebar-accent-foreground: oklch(0.25 0.06 148);
-  --sidebar-border: oklch(0.90 0.015 90);
-  --sidebar-ring: oklch(0.42 0.12 148);
+  /* Sidebar - Warm Floating Pill Aesthetic */
+  --sidebar: oklch(0.935 0.018 85); /* #EFE9DF */
+  --sidebar-foreground: oklch(0.20 0.025 145);
+  --sidebar-primary: oklch(0.20 0.025 145); /* #18221B dark active pill */
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.90 0.02 85);
+  --sidebar-accent-foreground: oklch(0.20 0.025 145);
+  --sidebar-border: oklch(0.88 0.016 85);
+  --sidebar-ring: oklch(0.36 0.12 148);
 }
 
 .dark {
@@ -154,9 +154,72 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-background text-foreground antialiased selection:bg-primary/20 selection:text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
+}
+
+/* Custom Soft Pastel & Tactile Pill Card Utility Styles (Inspired by Organic Bento) */
+.card-pastel-peach {
+  background-color: #FEEAE6;
+  border-color: #F7D0C8;
+  color: #7F2317;
+}
+.dark .card-pastel-peach {
+  background-color: oklch(0.24 0.05 28);
+  border-color: oklch(0.33 0.07 28);
+  color: oklch(0.92 0.04 28);
+}
+
+.card-pastel-amber {
+  background-color: #FDF1DD;
+  border-color: #F7E0BE;
+  color: #7D4805;
+}
+.dark .card-pastel-amber {
+  background-color: oklch(0.24 0.05 75);
+  border-color: oklch(0.34 0.07 75);
+  color: oklch(0.92 0.05 75);
+}
+
+.card-pastel-lavender {
+  background-color: #ECEFFD;
+  border-color: #D6DCFB;
+  color: #342D96;
+}
+.dark .card-pastel-lavender {
+  background-color: oklch(0.23 0.05 270);
+  border-color: oklch(0.33 0.07 270);
+  color: oklch(0.92 0.04 270);
+}
+
+.card-pastel-mint {
+  background-color: #E2F5EC;
+  border-color: #C1EBD2;
+  color: #14592F;
+}
+.dark .card-pastel-mint {
+  background-color: oklch(0.23 0.05 148);
+  border-color: oklch(0.33 0.07 148);
+  color: oklch(0.92 0.04 148);
+}
+
+.card-soft-container {
+  background-color: oklch(0.945 0.015 85);
+  border-color: oklch(0.89 0.014 85);
+}
+.dark .card-soft-container {
+  background-color: oklch(0.18 0.025 145);
+  border-color: oklch(0.27 0.025 145);
+}
+
+.pill-active-dark {
+  background-color: #18221B;
+  color: #FFFFFF;
+}
+.dark .pill-active-dark {
+  background-color: oklch(0.62 0.16 148);
+  color: oklch(0.12 0.03 148);
 }
 
 /* Noto Sans Bengali Typography Rules */

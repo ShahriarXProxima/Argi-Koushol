@@ -98,14 +98,14 @@ export function ForecastStrip({
   const isSpraySafe = rainProb <= 50;
 
   return (
-    <Card className="border-border/80 bg-card shadow-sm">
-      <CardContent className="p-4 space-y-3.5">
+    <Card className="rounded-[28px] border-border/80 bg-card shadow-xs overflow-hidden">
+      <CardContent className="p-5 space-y-4">
         {/* Top Header: Field selector chips & Risk Badge */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
-            <span className="text-xs font-bold text-muted-foreground mr-1 shrink-0 flex items-center gap-1">
-              <CalendarDays className="size-3.5 text-primary" />
-              ৪৮ ঘণ্টার পূর্বাভাস:
+            <span className="text-xs font-bold text-muted-foreground mr-1 shrink-0 flex items-center gap-1.5">
+              <CalendarDays className="size-4 text-primary" />
+              <span>৪৮ ঘণ্টার পূর্বাভাস:</span>
             </span>
             {fields.map((f) => {
               const active = f.id === selectedField.id;
@@ -115,8 +115,8 @@ export function ForecastStrip({
                   variant={active ? "default" : "outline"}
                   size="xs"
                   onClick={() => onSelectField(f)}
-                  className={`h-7 px-2.5 rounded-lg text-xs font-medium shrink-0 transition-all ${
-                    active ? "bg-primary text-primary-foreground font-semibold" : "text-muted-foreground hover:text-foreground"
+                  className={`h-8 px-3 rounded-full text-xs font-semibold shrink-0 transition-all cursor-pointer shadow-xs ${
+                    active ? "pill-active-dark" : "bg-card text-foreground border-border/80 hover:bg-secondary"
                   }`}
                 >
                   {f.name.split(" ")[0]} ({f.name.split("(")[1]?.replace(")", "") || f.crop.split(" ")[0]})
@@ -129,16 +129,16 @@ export function ForecastStrip({
             {isStale && (
               <Badge
                 variant="outline"
-                className="h-6 px-2 text-xs font-semibold rounded-md border-amber-500/40 bg-amber-500/10 text-amber-800 dark:text-amber-200"
+                className="h-7 px-2.5 text-xs font-semibold rounded-full border-amber-500/40 bg-amber-500/10 text-amber-800 dark:text-amber-200"
               >
                 Stale (Cached)
               </Badge>
             )}
             <Badge
               variant="outline"
-              className={`h-6 px-2 text-xs font-semibold rounded-md gap-1 ${riskBadge.colorClass}`}
+              className={`h-7 px-3 text-xs font-semibold rounded-full gap-1.5 shadow-xs ${riskBadge.colorClass}`}
             >
-              <RiskIcon className="size-3" />
+              <RiskIcon className="size-3.5" />
               <span>{riskBadge.label} ({riskBadge.labelBn})</span>
             </Badge>
             <SimulatedBadge label="Weather" />
@@ -148,64 +148,64 @@ export function ForecastStrip({
         {/* 48-Hour Metrics Strip */}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 pt-1">
           {/* Rain Probability (6h) */}
-          <div className="rounded-xl border border-border/70 bg-secondary/30 p-2.5 space-y-1">
-            <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+          <div className="rounded-2xl border border-border/70 bg-secondary/30 p-3 space-y-1">
+            <div className="flex items-center justify-between text-[11px] text-muted-foreground font-medium">
               <span>বৃষ্টির সম্ভাবনা (৬ ঘণ্টা)</span>
-              <CloudRain className="size-3 text-sky-600" />
+              <CloudRain className="size-3.5 text-sky-600" />
             </div>
             <div className="flex items-baseline gap-1">
-              <span className="text-xl font-bold font-mono tracking-tight text-foreground">
+              <span className="text-2xl font-extrabold tracking-tight text-foreground font-heading">
                 {rainProb}%
               </span>
-              <span className="text-[10px] text-muted-foreground">সম্ভাবনা</span>
+              <span className="text-[10px] text-muted-foreground font-semibold">সম্ভাবনা</span>
             </div>
           </div>
 
           {/* Rain Accumulation (48h) */}
-          <div className="rounded-xl border border-border/70 bg-secondary/30 p-2.5 space-y-1">
-            <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+          <div className="rounded-2xl border border-border/70 bg-secondary/30 p-3 space-y-1">
+            <div className="flex items-center justify-between text-[11px] text-muted-foreground font-medium">
               <span>বৃষ্টিপাত পরিমাণ (৪৮ ঘণ্টা)</span>
-              <CloudLightning className="size-3 text-sky-600" />
+              <CloudLightning className="size-3.5 text-sky-600" />
             </div>
             <div className="flex items-baseline gap-1">
-              <span className="text-xl font-bold font-mono tracking-tight text-foreground">
+              <span className="text-2xl font-extrabold tracking-tight text-foreground font-heading">
                 {rainMm}
               </span>
-              <span className="text-[10px] text-muted-foreground">মিলিমিটার (mm)</span>
+              <span className="text-[10px] text-muted-foreground font-semibold">মিমি (mm)</span>
             </div>
           </div>
 
           {/* Peak Temperature */}
-          <div className="rounded-xl border border-border/70 bg-secondary/30 p-2.5 space-y-1">
-            <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-              <span>সর্বোচ্চ তাপমাত্রা (Max Temp)</span>
-              <Sun className="size-3 text-amber-600" />
+          <div className="rounded-2xl border border-border/70 bg-secondary/30 p-3 space-y-1">
+            <div className="flex items-center justify-between text-[11px] text-muted-foreground font-medium">
+              <span>সর্বোচ্চ তাপমাত্রা (Max)</span>
+              <Sun className="size-3.5 text-amber-600" />
             </div>
             <div className="flex items-baseline gap-1">
-              <span className="text-xl font-bold font-mono tracking-tight text-foreground">
+              <span className="text-2xl font-extrabold tracking-tight text-foreground font-heading">
                 {tempMax}°C
               </span>
-              <span className="text-[10px] text-muted-foreground">দিনের পিক</span>
+              <span className="text-[10px] text-muted-foreground font-semibold">দিনের পিক</span>
             </div>
           </div>
 
           {/* Autonomous Spray Safety Status */}
-          <div className="rounded-xl border border-border/70 bg-secondary/30 p-2.5 space-y-1">
-            <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+          <div className="rounded-2xl border border-border/70 bg-secondary/30 p-3 space-y-1">
+            <div className="flex items-center justify-between text-[11px] text-muted-foreground font-medium">
               <span>AI স্প্রে নিরাপত্তা নীতি</span>
               {isSpraySafe ? (
-                <ShieldCheck className="size-3.5 text-emerald-600" />
+                <ShieldCheck className="size-4 text-emerald-600" />
               ) : (
-                <ShieldAlert className="size-3.5 text-destructive" />
+                <ShieldAlert className="size-4 text-destructive" />
               )}
             </div>
             <div className="flex items-baseline gap-1">
               <span
-                className={`text-sm font-bold tracking-tight ${
-                  isSpraySafe ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"
+                className={`text-sm font-extrabold tracking-tight ${
+                  isSpraySafe ? "text-emerald-700 dark:text-emerald-300" : "text-destructive"
                 }`}
               >
-                {isSpraySafe ? "স্প্রে নিরাপদ" : "স্প্রে স্থগিত"}
+                {isSpraySafe ? "স্প্রে নিরাপদ (Safe)" : "স্প্রে স্থগিত (Hold)"}
               </span>
             </div>
           </div>

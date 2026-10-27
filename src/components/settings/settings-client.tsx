@@ -220,13 +220,15 @@ export function SettingsClient({
       {/* Grid: Scenarios & Automation Rules */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* 1. Demo Scenario Switcher (Span 2 cols) */}
-        <Card className="lg:col-span-2 border-border/80">
+        <Card className="lg:col-span-2 rounded-[28px] border-border/80 shadow-xs">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <Sliders className="size-5 text-primary" />
+                <div className="flex size-9 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                  <Sliders className="size-4.5" />
+                </div>
                 <div>
-                  <CardTitle className="text-base font-bold">
+                  <CardTitle className="text-base font-bold font-heading">
                     আবহাওয়া ও ফসলের দৃশ্যপট নির্বাচন (Demo Scenario Switch)
                   </CardTitle>
                   <CardDescription className="text-xs">
@@ -234,7 +236,7 @@ export function SettingsClient({
                   </CardDescription>
                 </div>
               </div>
-              <Badge variant="outline" className="text-xs font-mono">
+              <Badge variant="outline" className="text-xs font-mono rounded-full px-3">
                 Active: {scenario}
               </Badge>
             </div>
@@ -345,12 +347,14 @@ export function SettingsClient({
         </Card>
 
         {/* 2. Safety Guards & Human Approval */}
-        <Card className="border-border/80">
+        <Card className="rounded-[28px] border-border/80 shadow-xs">
           <CardHeader>
             <div className="flex items-center gap-2.5">
-              <ShieldCheck className="size-5 text-primary" />
+              <div className="flex size-9 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                <ShieldCheck className="size-4.5" />
+              </div>
               <div>
-                <CardTitle className="text-base font-bold">
+                <CardTitle className="text-base font-bold font-heading">
                   AI নিরাপত্তা ও কৃষকের অনুমোদন
                 </CardTitle>
                 <CardDescription className="text-xs">
@@ -409,13 +413,15 @@ export function SettingsClient({
       </div>
 
       {/* 3. System Connectivity Status Panel (4 Pillars) */}
-      <Card className="border-border/80">
+      <Card className="rounded-[28px] border-border/80 shadow-xs">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <Radio className="size-5 text-primary" />
+              <div className="flex size-9 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                <Radio className="size-4.5" />
+              </div>
               <div>
-                <CardTitle className="text-base font-bold">
+                <CardTitle className="text-base font-bold font-heading">
                   সিস্টেম কানেক্টিভিটি স্ট্যাটাস (System Health &amp; Reachability)
                 </CardTitle>
                 <CardDescription className="text-xs">
@@ -423,7 +429,7 @@ export function SettingsClient({
                 </CardDescription>
               </div>
             </div>
-            <Badge variant="outline" className="text-xs">
+            <Badge variant="outline" className="text-xs rounded-full px-3">
               Autonomous Layer
             </Badge>
           </div>

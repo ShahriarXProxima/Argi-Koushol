@@ -383,20 +383,20 @@ export function ChatWidget() {
           <Button
             size="icon"
             onClick={handleOpenChat}
-            className="size-14 rounded-2xl bg-gradient-to-br from-emerald-600 via-green-600 to-emerald-700 text-white shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all border-2 border-white/20 flex items-center justify-center cursor-pointer relative group"
+            className="size-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all border-2 border-white/30 flex items-center justify-center cursor-pointer relative group"
             aria-label="Open Shoshsho-Prohori Assistant"
           >
             {/* Avatar Icon */}
             <Sprout className="size-6 group-hover:scale-110 transition-transform text-white" />
-            <div className="absolute -bottom-1 -right-1 bg-amber-500 text-stone-900 rounded-full p-0.5 shadow-xs border border-background">
-              <Shield className="size-3 fill-current" />
+            <div className="absolute -bottom-0.5 -right-0.5 bg-amber-500 text-stone-900 rounded-full p-1 shadow-xs border-2 border-background">
+              <Shield className="size-2.5 fill-current" />
             </div>
 
             {/* Unread Notification Dot */}
             {hasUnread && (
-              <span className="absolute -top-1 -right-1 flex size-4">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75" />
-                <span className="relative inline-flex rounded-full size-4 bg-destructive border-2 border-background" />
+              <span className="absolute -top-0.5 -right-0.5 flex size-3.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
+                <span className="relative inline-flex rounded-full size-3.5 bg-rose-500 ring-2 ring-background" />
               </span>
             )}
             <span className="sr-only">Open Shoshsho-Prohori Chat</span>
@@ -415,9 +415,9 @@ export function ChatWidget() {
           className={cn(
             "fixed z-50 flex flex-col bg-card border border-border shadow-2xl transition-all overflow-hidden",
             // Desktop: Floating panel (420x620 px)
-            "md:bottom-6 md:right-6 md:w-[420px] md:h-[620px] md:max-h-[85vh] md:rounded-2xl",
+            "md:bottom-6 md:right-6 md:w-[420px] md:h-[620px] md:max-h-[85vh] md:rounded-[28px]",
             // Mobile: Full-height bottom sheet
-            "inset-x-0 bottom-0 h-[92vh] sm:h-[85vh] rounded-t-3xl md:rounded-b-2xl"
+            "inset-x-0 bottom-0 h-[92vh] sm:h-[85vh] rounded-t-3xl md:rounded-b-[28px]"
           )}
         >
           {/* Header */}

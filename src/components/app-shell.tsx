@@ -12,16 +12,16 @@ interface AppShellProps {
 
 export function AppShell({ children }: AppShellProps) {
   return (
-    <div className="flex min-h-screen bg-background text-foreground">
-      {/* Desktop sidebar */}
-      <React.Suspense fallback={<aside className="hidden md:flex md:w-64 md:flex-col md:inset-y-0 bg-sidebar border-r border-sidebar-border" />}>
+    <div className="flex min-h-screen bg-background text-foreground selection:bg-primary/20">
+      {/* Desktop sidebar rail */}
+      <React.Suspense fallback={<aside className="hidden md:flex md:w-20 lg:w-24 md:flex-col bg-secondary/50 border-r border-border/70" />}>
         <Sidebar />
       </React.Suspense>
 
       {/* Main content wrapper */}
-      <div className="flex flex-1 flex-col overflow-x-hidden">
+      <div className="flex flex-1 flex-col overflow-x-hidden min-w-0">
         <TopBar />
-        <main className="flex-1 p-4 md:p-8 pb-24 md:pb-8 max-w-7xl w-full mx-auto">
+        <main className="flex-1 p-4 md:p-6 lg:p-8 pb-24 md:pb-12 max-w-[1536px] w-full mx-auto">
           {children}
         </main>
         <Footer />

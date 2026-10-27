@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SimulatedBadge } from "@/components/simulated-badge";
 import { YieldCard } from "./yield-card";
 import {
@@ -37,79 +36,79 @@ export function YieldClient({ overviewData }: YieldClientProps) {
 
   return (
     <div className="space-y-6 pb-12">
-      {/* Top Agricultural KPI Cards */}
+      {/* Top Agricultural KPI Cards - Soft Bento Pastel Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="rounded-2xl border-border/70 shadow-sm bg-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
+        <div className="card-pastel-mint rounded-[26px] p-5 border shadow-xs transition-all hover:shadow-md">
+          <div className="flex items-center justify-between pb-2">
+            <span className="text-xs font-bold uppercase tracking-wider opacity-85">
               খামারের মোট প্রত্যাশিত ফলন
-            </CardTitle>
-            <BarChart3 className="size-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold font-mono text-foreground">
-              {totalProductionTons.toFixed(1)}{" "}
-              <span className="text-xs font-sans font-medium text-muted-foreground">মেট্রিক টন</span>
+            </span>
+            <div className="flex size-8 items-center justify-center rounded-full bg-white/80 dark:bg-black/20 text-emerald-800 dark:text-emerald-300">
+              <BarChart3 className="size-4" />
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {overviewData.length}টি সক্রিয় প্লটের সমন্বিত উৎপাদন
-            </p>
-          </CardContent>
-        </Card>
+          </div>
+          <div className="text-3xl font-extrabold tracking-tight text-foreground font-heading">
+            {totalProductionTons.toFixed(1)}{" "}
+            <span className="text-sm font-sans font-medium opacity-80">মেট্রিক টন</span>
+          </div>
+          <p className="text-xs opacity-80 mt-1 font-medium">
+            {overviewData.length}টি সক্রিয় প্লটের সমন্বিত উৎপাদন
+          </p>
+        </div>
 
-        <Card className="rounded-2xl border-border/70 shadow-sm bg-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
-              গড় ফলন ঘনত্ব (Mean Yield)
-            </CardTitle>
-            <Sprout className="size-4 text-emerald-600 dark:text-emerald-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold font-mono text-foreground">
-              {avgYieldRate}{" "}
-              <span className="text-xs font-sans font-medium text-muted-foreground">টন/হেক্টর</span>
+        <div className="card-pastel-amber rounded-[26px] p-5 border shadow-xs transition-all hover:shadow-md">
+          <div className="flex items-center justify-between pb-2">
+            <span className="text-xs font-bold uppercase tracking-wider opacity-85">
+              গড় ফলন ঘনত্ব (Mean Rate)
+            </span>
+            <div className="flex size-8 items-center justify-center rounded-full bg-white/80 dark:bg-black/20 text-amber-800 dark:text-amber-300">
+              <Sprout className="size-4" />
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              জাতীয় আদর্শের চেয়ে +১২.৪% বেশি প্রক্ষেপণ
-            </p>
-          </CardContent>
-        </Card>
+          </div>
+          <div className="text-3xl font-extrabold tracking-tight text-foreground font-heading">
+            {avgYieldRate}{" "}
+            <span className="text-sm font-sans font-medium opacity-80">টন/হেক্টর</span>
+          </div>
+          <p className="text-xs opacity-80 mt-1 font-medium">
+            জাতীয় আদর্শের চেয়ে +১২.৪% বেশি প্রক্ষেপণ
+          </p>
+        </div>
 
-        <Card className="rounded-2xl border-border/70 shadow-sm bg-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
+        <div className="card-pastel-lavender rounded-[26px] p-5 border shadow-xs transition-all hover:shadow-md">
+          <div className="flex items-center justify-between pb-2">
+            <span className="text-xs font-bold uppercase tracking-wider opacity-85">
               প্রথম ফসল কর্তনের সময়
-            </CardTitle>
-            <Calendar className="size-4 text-sky-600 dark:text-sky-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-base font-bold text-foreground">
-              {earliestHarvest
-                ? earliestHarvest.toLocaleDateString("bn-BD", { month: "short", day: "numeric", year: "numeric" })
-                : "প্রস্তুত হচ্ছে"}
+            </span>
+            <div className="flex size-8 items-center justify-center rounded-full bg-white/80 dark:bg-black/20 text-indigo-800 dark:text-indigo-300">
+              <Calendar className="size-4" />
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              আলুর নাবী ধসা demo প্লট (সেক্টর ৪)
-            </p>
-          </CardContent>
-        </Card>
+          </div>
+          <div className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground font-heading">
+            {earliestHarvest
+              ? earliestHarvest.toLocaleDateString("bn-BD", { month: "short", day: "numeric", year: "numeric" })
+              : "প্রস্তুত হচ্ছে"}
+          </div>
+          <p className="text-xs opacity-80 mt-1 font-medium">
+            আলুর নাবী ধসা demo প্লট (সেক্টর ৪)
+          </p>
+        </div>
 
-        <Card className="rounded-2xl border-border/70 shadow-sm bg-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
+        <div className="card-pastel-peach rounded-[26px] p-5 border shadow-xs transition-all hover:shadow-md">
+          <div className="flex items-center justify-between pb-2">
+            <span className="text-xs font-bold uppercase tracking-wider opacity-85">
               সুরক্ষিত সম্ভাব্য ফলন
-            </CardTitle>
-            <TrendingUp className="size-4 text-emerald-600 dark:text-emerald-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold font-mono text-emerald-600 dark:text-emerald-400">
-              +১৮.২% <span className="text-xs font-sans font-medium text-muted-foreground">সংরক্ষিত</span>
+            </span>
+            <div className="flex size-8 items-center justify-center rounded-full bg-white/80 dark:bg-black/20 text-rose-800 dark:text-rose-300">
+              <TrendingUp className="size-4" />
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              স্বয়ংক্রিয় সেচ ও সুরক্ষা নীতি প্রয়োগের মাধ্যমে
-            </p>
-          </CardContent>
-        </Card>
+          </div>
+          <div className="text-3xl font-extrabold tracking-tight text-foreground font-heading">
+            +১৮.২% <span className="text-sm font-sans font-medium opacity-80">সংরক্ষিত</span>
+          </div>
+          <p className="text-xs opacity-80 mt-1 font-medium">
+            স্বয়ংক্রিয় সেচ ও সুরক্ষা নীতি প্রয়োগের মাধ্যমে
+          </p>
+        </div>
       </div>
 
       {/* Model Transparency Advisory Banner */}

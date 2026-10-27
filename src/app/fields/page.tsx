@@ -82,75 +82,75 @@ async function FieldsListContent() {
 
   return (
     <div className="space-y-6 pb-12">
-      {/* Top Banner & Statistics Overview */}
+      {/* Top Banner & Statistics Overview with Soft Bento Pastel Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="rounded-2xl border-border/70 shadow-sm bg-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
+        <div className="card-pastel-mint rounded-[26px] p-5 border shadow-xs transition-all hover:shadow-md">
+          <div className="flex items-center justify-between pb-2">
+            <span className="text-xs font-bold uppercase tracking-wider opacity-85">
               মোট আবাদি জমি (Total Area)
-            </CardTitle>
-            <Layers className="size-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold font-mono text-foreground">
-              {totalAreaHa.toFixed(1)} <span className="text-sm font-sans font-medium text-muted-foreground">হেক্টর</span>
+            </span>
+            <div className="flex size-8 items-center justify-center rounded-full bg-white/80 dark:bg-black/20 text-emerald-800 dark:text-emerald-300">
+              <Layers className="size-4" />
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              প্রায় {totalBigha} বিঘা জমি সমন্বিত
-            </p>
-          </CardContent>
-        </Card>
+          </div>
+          <div className="text-3xl font-extrabold tracking-tight text-foreground font-heading">
+            {totalAreaHa.toFixed(1)} <span className="text-sm font-sans font-medium opacity-80">হেক্টর</span>
+          </div>
+          <p className="text-xs opacity-80 mt-1 font-medium">
+            প্রায় {totalBigha} বিঘা জমি সমন্বিত
+          </p>
+        </div>
 
-        <Card className="rounded-2xl border-border/70 shadow-sm bg-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
+        <div className="card-pastel-amber rounded-[26px] p-5 border shadow-xs transition-all hover:shadow-md">
+          <div className="flex items-center justify-between pb-2">
+            <span className="text-xs font-bold uppercase tracking-wider opacity-85">
               সক্রিয় প্লট (Active Plots)
-            </CardTitle>
-            <Sprout className="size-4 text-emerald-600 dark:text-emerald-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold font-mono text-foreground">
-              {fields.length} <span className="text-sm font-sans font-medium text-muted-foreground">টি সেক্টর</span>
+            </span>
+            <div className="flex size-8 items-center justify-center rounded-full bg-white/80 dark:bg-black/20 text-amber-800 dark:text-amber-300">
+              <Sprout className="size-4" />
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              ধান, আলু ও টমেটো ফসলে আচ্ছাদিত
-            </p>
-          </CardContent>
-        </Card>
+          </div>
+          <div className="text-3xl font-extrabold tracking-tight text-foreground font-heading">
+            {fields.length} <span className="text-sm font-sans font-medium opacity-80">টি সেক্টর</span>
+          </div>
+          <p className="text-xs opacity-80 mt-1 font-medium">
+            ধান, আলু ও রবিশস্যে আচ্ছাদিত
+          </p>
+        </div>
 
-        <Card className="rounded-2xl border-border/70 shadow-sm bg-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
-              সেচ পর্যবেক্ষণ (Irrigation Watch)
-            </CardTitle>
-            <Droplets className="size-4 text-sky-600 dark:text-sky-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold font-mono text-foreground">
-              {dryFieldsCount} <span className="text-sm font-sans font-medium text-muted-foreground">টি প্লটে ঘাটতি</span>
+        <div className="card-pastel-lavender rounded-[26px] p-5 border shadow-xs transition-all hover:shadow-md">
+          <div className="flex items-center justify-between pb-2">
+            <span className="text-xs font-bold uppercase tracking-wider opacity-85">
+              সেচ পর্যবেক্ষণ (Irrigation)
+            </span>
+            <div className="flex size-8 items-center justify-center rounded-full bg-white/80 dark:bg-black/20 text-indigo-800 dark:text-indigo-300">
+              <Droplets className="size-4" />
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              মাটির আর্দ্রতা থ্রেশহোল্ডের নিচে
-            </p>
-          </CardContent>
-        </Card>
+          </div>
+          <div className="text-3xl font-extrabold tracking-tight text-foreground font-heading">
+            {dryFieldsCount} <span className="text-sm font-sans font-medium opacity-80">টি প্লটে ঘাটতি</span>
+          </div>
+          <p className="text-xs opacity-80 mt-1 font-medium">
+            মাটির আর্দ্রতা থ্রেশহোল্ডের নিচে
+          </p>
+        </div>
 
-        <Card className="rounded-2xl border-border/70 shadow-sm bg-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
+        <div className="card-pastel-peach rounded-[26px] p-5 border shadow-xs transition-all hover:shadow-md">
+          <div className="flex items-center justify-between pb-2">
+            <span className="text-xs font-bold uppercase tracking-wider opacity-85">
               রোগ সতর্কবার্তা (Disease Alert)
-            </CardTitle>
-            <Bug className="size-4 text-rose-600 dark:text-rose-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold font-mono text-foreground">
-              {flaggedFieldsCount} <span className="text-sm font-sans font-medium text-muted-foreground">টি শনাক্ত</span>
+            </span>
+            <div className="flex size-8 items-center justify-center rounded-full bg-white/80 dark:bg-black/20 text-rose-800 dark:text-rose-300">
+              <Bug className="size-4" />
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              ড্রোন ভিশন দ্বারা লেট ব্লাইট ট্র্যাকড
-            </p>
-          </CardContent>
-        </Card>
+          </div>
+          <div className="text-3xl font-extrabold tracking-tight text-foreground font-heading">
+            {flaggedFieldsCount} <span className="text-sm font-sans font-medium opacity-80">টি শনাক্ত</span>
+          </div>
+          <p className="text-xs opacity-80 mt-1 font-medium">
+            ড্রোন ভিশন দ্বারা লেট ব্লাইট ট্র্যাকড
+          </p>
+        </div>
       </div>
 
       {/* Grid of Field Cards */}
@@ -181,7 +181,7 @@ async function FieldsListContent() {
           return (
             <Card
               key={field.id}
-              className="rounded-2xl border-border/80 shadow-sm bg-card hover:border-primary/50 hover:shadow-md transition-all flex flex-col justify-between overflow-hidden group"
+              className="rounded-[28px] border-border/80 shadow-xs bg-card hover:border-primary/50 hover:shadow-md transition-all flex flex-col justify-between overflow-hidden group"
             >
               <div>
                 <CardHeader className="pb-3 border-b border-border/40 bg-muted/15">

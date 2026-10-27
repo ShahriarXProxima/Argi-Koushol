@@ -151,7 +151,7 @@ export function YieldCard({ fieldData }: YieldCardProps) {
     date.toLocaleDateString("bn-BD", { month: "short", day: "numeric", year: "numeric" });
 
   return (
-    <Card className="rounded-2xl border-border/80 shadow-sm bg-card hover:border-primary/40 transition-all flex flex-col justify-between overflow-hidden">
+    <Card className="rounded-[28px] border-border/80 shadow-xs bg-card hover:border-primary/40 hover:shadow-md transition-all flex flex-col justify-between overflow-hidden">
       <div>
         {/* Header */}
         <CardHeader className="pb-3 border-b border-border/40 bg-muted/15">

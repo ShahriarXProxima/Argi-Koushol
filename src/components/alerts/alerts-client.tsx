@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { mutate } from "swr";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -277,68 +277,68 @@ export function AlertsClient({ initialAlerts, fields }: AlertsClientProps) {
 
   return (
     <div className="space-y-6 pb-12">
-      {/* Top Context & Metrics Cards */}
+      {/* Top Context & Metrics Cards - Soft Bento Pastel Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="rounded-2xl border-border/70 shadow-sm bg-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
+        <div className="card-pastel-mint rounded-[26px] p-5 border shadow-xs transition-all hover:shadow-md">
+          <div className="flex items-center justify-between pb-2">
+            <span className="text-xs font-bold uppercase tracking-wider opacity-85">
               মোট সতর্কতা (Total Alerts)
-            </CardTitle>
-            <ShieldCheck className="size-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold font-mono text-foreground">
-              {alerts.length} <span className="text-xs font-sans font-normal text-muted-foreground">টি এন্ট্রি</span>
+            </span>
+            <div className="flex size-8 items-center justify-center rounded-full bg-white/80 dark:bg-black/20 text-emerald-800 dark:text-emerald-300">
+              <ShieldCheck className="size-4" />
             </div>
-            <p className="text-xs text-muted-foreground mt-1">সব ফিল্ডের মোট সিস্টেম লগ</p>
-          </CardContent>
-        </Card>
+          </div>
+          <div className="text-3xl font-extrabold tracking-tight text-foreground font-heading">
+            {alerts.length} <span className="text-sm font-sans font-medium opacity-80">টি এন্ট্রি</span>
+          </div>
+          <p className="text-xs opacity-80 mt-1 font-medium">সব ফিল্ডের মোট সিস্টেম লগ</p>
+        </div>
 
-        <Card className="rounded-2xl border-border/70 shadow-sm bg-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
-              অপঠিত সতর্কবার্তা (Unread Alerts)
-            </CardTitle>
-            <span className="size-2 rounded-full bg-destructive animate-pulse" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold font-mono text-foreground">
-              {unreadCount} <span className="text-xs font-sans font-normal text-muted-foreground">টি নতুন</span>
+        <div className="card-pastel-amber rounded-[26px] p-5 border shadow-xs transition-all hover:shadow-md">
+          <div className="flex items-center justify-between pb-2">
+            <span className="text-xs font-bold uppercase tracking-wider opacity-85">
+              অপঠিত সতর্কবার্তা (Unread)
+            </span>
+            <div className="flex size-8 items-center justify-center rounded-full bg-white/80 dark:bg-black/20 text-amber-800 dark:text-amber-300">
+              <span className="size-2.5 rounded-full bg-amber-500 animate-pulse" />
             </div>
-            <p className="text-xs text-muted-foreground mt-1">কৃষকের পর্যালোচনা অপেক্ষমাণ</p>
-          </CardContent>
-        </Card>
+          </div>
+          <div className="text-3xl font-extrabold tracking-tight text-foreground font-heading">
+            {unreadCount} <span className="text-sm font-sans font-medium opacity-80">টি নতুন</span>
+          </div>
+          <p className="text-xs opacity-80 mt-1 font-medium">কৃষকের পর্যালোচনা অপেক্ষমাণ</p>
+        </div>
 
-        <Card className="rounded-2xl border-border/70 shadow-sm bg-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
+        <div className="card-pastel-peach rounded-[26px] p-5 border shadow-xs transition-all hover:shadow-md">
+          <div className="flex items-center justify-between pb-2">
+            <span className="text-xs font-bold uppercase tracking-wider opacity-85">
               জরুরি ঝুঁকি (Critical / High)
-            </CardTitle>
-            <ShieldAlert className="size-4 text-rose-600 dark:text-rose-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold font-mono text-rose-600 dark:text-rose-400">
-              {criticalCount} <span className="text-xs font-sans font-normal text-muted-foreground">টি সংকট</span>
+            </span>
+            <div className="flex size-8 items-center justify-center rounded-full bg-white/80 dark:bg-black/20 text-rose-800 dark:text-rose-300">
+              <ShieldAlert className="size-4" />
             </div>
-            <p className="text-xs text-muted-foreground mt-1">নাবী ধসা ও পানির ঘাটতি সংকেত</p>
-          </CardContent>
-        </Card>
+          </div>
+          <div className="text-3xl font-extrabold tracking-tight text-foreground font-heading">
+            {criticalCount} <span className="text-sm font-sans font-medium opacity-80">টি সংকট</span>
+          </div>
+          <p className="text-xs opacity-80 mt-1 font-medium">নাবী ধসা ও পানির ঘাটতি সংকেত</p>
+        </div>
 
-        <Card className="rounded-2xl border-border/70 shadow-sm bg-card">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">
+        <div className="card-pastel-lavender rounded-[26px] p-5 border shadow-xs transition-all hover:shadow-md">
+          <div className="flex items-center justify-between pb-2">
+            <span className="text-xs font-bold uppercase tracking-wider opacity-85">
               স্বয়ংক্রিয় অ্যাকশন (Decisions)
-            </CardTitle>
-            <Bot className="size-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold font-mono text-foreground">
-              {alerts.filter((a) => !!a.decision).length}{" "}
-              <span className="text-xs font-sans font-normal text-muted-foreground">টি সংযুক্ত</span>
+            </span>
+            <div className="flex size-8 items-center justify-center rounded-full bg-white/80 dark:bg-black/20 text-indigo-800 dark:text-indigo-300">
+              <Bot className="size-4" />
             </div>
-            <p className="text-xs text-muted-foreground mt-1">ওভাররাইড করার জন্য উন্মুক্ত</p>
-          </CardContent>
-        </Card>
+          </div>
+          <div className="text-3xl font-extrabold tracking-tight text-foreground font-heading">
+            {alerts.filter((a) => !!a.decision).length}{" "}
+            <span className="text-sm font-sans font-medium opacity-80">টি সংযুক্ত</span>
+          </div>
+          <p className="text-xs opacity-80 mt-1 font-medium">ওভাররাইড করার জন্য উন্মুক্ত</p>
+        </div>
       </div>
 
       {/* Filter and Search Bar */}

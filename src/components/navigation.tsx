@@ -13,8 +13,13 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 import { useI18n, type TranslationKey } from "@/lib/i18n";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export interface NavItemConfig {
   key: TranslationKey;
@@ -81,96 +86,108 @@ export function Sidebar() {
   const { isBangla, t } = useI18n();
 
   return (
-    <aside className="hidden md:flex md:w-64 md:flex-col md:inset-y-0 bg-sidebar border-r border-sidebar-border select-none">
-      {/* Brand Header */}
-      <div className="flex h-16 items-center gap-3 px-6 border-b border-sidebar-border">
-        <div className="flex size-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
-          <Leaf className="size-5.5" />
-        </div>
-        <div className="flex flex-col">
-          <span className="text-base font-bold tracking-tight text-sidebar-foreground">
-            {t("app.title")}
+    <TooltipProvider delay={150}>
+      <aside
+        className="hidden md:flex md:w-20 lg:w-24 md:flex-col md:items-center py-6 px-3 bg-secondary/50 dark:bg-card/40 border-r border-border/70 select-none justify-between transition-all"
+        aria-label="Desktop Navigation Dock"
+      >
+        {/* Top Logo Emblem */}
+        <div className="flex flex-col items-center gap-2">
+          <Link
+            href="/"
+            className="group flex size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm hover:scale-105 transition-transform"
+            aria-label="Agri-Koushol Home"
+          >
+            <Leaf className="size-6 transition-transform group-hover:rotate-12" />
+          </Link>
+          <span className="text-[10px] font-bold tracking-tight text-foreground/80 text-center leading-tight">
+            {isBangla ? "কৃষি কৌশল" : "AgriK"}
           </span>
-          <span className="text-[11px] font-medium tracking-wide text-primary">
-            {t("app.subtitle")}
-          </span>
         </div>
-      </div>
 
-      {/* Navigation Links */}
-      <div className="flex-1 px-3 py-5 space-y-1 overflow-y-auto">
-        <div className="px-3 pb-2 text-[11px] font-bold tracking-wider text-muted-foreground uppercase">
-          {t("nav.mainNavigation")}
-        </div>
-        {NAV_ITEMS.map((item) => {
-          const isActive =
-            pathname === item.href ||
-            (item.href !== "/" && pathname.startsWith(item.href));
-          const Icon = item.icon;
+        {/* Middle Navigation Pill Stack */}
+        <nav className="flex flex-col items-center gap-3 my-auto py-4">
+          {NAV_ITEMS.map((item) => {
+            const isActive =
+              pathname === item.href ||
+              (item.href !== "/" && pathname.startsWith(item.href));
+            const Icon = item.icon;
+            const primaryLabel = isBangla ? item.nameBn : item.name;
+            const secondaryLabel = isBangla ? item.name : item.nameBn;
 
-          const primaryLabel = isBangla ? item.nameBn : item.name;
-          const secondaryLabel = isBangla ? item.name : item.nameBn;
-
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "group flex items-center justify-between rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all",
-                isActive
-                  ? "bg-primary text-primary-foreground shadow-xs font-semibold"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-              )}
-            >
-              <div className="flex items-center gap-3">
-                <Icon
-                  className={cn(
-                    "size-5 transition-transform group-hover:scale-105",
-                    isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-sidebar-foreground"
-                  )}
-                />
-                <div className="flex flex-col text-left">
-                  <span className="leading-tight">{primaryLabel}</span>
-                  <span
-                    className={cn(
-                      "text-[10px] leading-tight",
-                      isActive ? "text-primary-foreground/80 font-normal" : "text-muted-foreground"
-                    )}
-                  >
-                    {secondaryLabel}
-                  </span>
-                </div>
-              </div>
-
-              {item.badge ? (
-                <Badge
-                  variant="destructive"
-                  className={cn(
-                    "h-5 min-w-5 px-1.5 text-[10px] font-bold rounded-full justify-center",
-                    isActive ? "bg-white text-destructive hover:bg-white" : ""
-                  )}
+            return (
+              <Tooltip key={item.href}>
+                <TooltipTrigger
+                  render={
+                    <Link
+                      href={item.href}
+                      aria-label={`${primaryLabel} (${secondaryLabel})`}
+                      className={cn(
+                        "relative flex size-12 items-center justify-center rounded-full transition-all duration-200 cursor-pointer group",
+                        isActive
+                          ? "pill-active-dark shadow-md scale-105"
+                          : "text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/10"
+                      )}
+                    />
+                  }
                 >
-                  {item.badge}
-                </Badge>
-              ) : null}
-            </Link>
-          );
-        })}
-      </div>
+                  <Icon
+                    className={cn(
+                      "size-5.5 transition-transform group-hover:scale-110",
+                      isActive ? "text-white dark:text-emerald-950" : "text-muted-foreground group-hover:text-foreground"
+                    )}
+                  />
 
-      {/* Farm Safety Quick Status Footer */}
-      <div className="p-4 m-3 rounded-2xl bg-secondary/60 border border-sidebar-border">
-        <div className="flex items-center gap-2 mb-1.5">
-          <ShieldAlert className="size-4 text-primary" />
-          <span className="text-xs font-bold text-foreground">
-            {t("nav.safetyPolicy")}
-          </span>
+                  {/* Unread Alert Notification Dot */}
+                  {item.badge ? (
+                    <span className="absolute top-2 right-2 flex size-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full size-2.5 bg-rose-500 ring-2 ring-background" />
+                    </span>
+                  ) : null}
+                </TooltipTrigger>
+                <TooltipContent side="right" sideOffset={12} className="px-3 py-1.5 rounded-xl text-xs font-semibold shadow-md">
+                  <div className="flex flex-col">
+                    <span className="font-bold">{primaryLabel}</span>
+                    <span className="text-[10px] opacity-75">{secondaryLabel}</span>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            );
+          })}
+        </nav>
+
+        {/* Bottom Safety & Farmer Info */}
+        <div className="flex flex-col items-center gap-3">
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <div
+                  className="flex size-10 items-center justify-center rounded-full bg-secondary/80 border border-border/80 text-primary cursor-help hover:bg-secondary transition-colors"
+                  aria-label="Safety Policy"
+                />
+              }
+            >
+              <ShieldAlert className="size-4.5" />
+            </TooltipTrigger>
+            <TooltipContent side="right" sideOffset={12} className="max-w-xs p-3 rounded-2xl text-xs shadow-md">
+              <p className="font-bold text-foreground mb-1">{t("nav.safetyPolicy")}</p>
+              <p className="text-muted-foreground text-[11px] leading-relaxed">
+                {t("nav.safetyText")}
+              </p>
+            </TooltipContent>
+          </Tooltip>
+
+          <Link
+            href="/settings"
+            className="flex size-10 items-center justify-center rounded-full border border-primary/20 bg-primary/10 hover:bg-primary/20 text-primary font-bold text-xs transition-colors"
+            title="Rafiqul Islam (Farmer Profile)"
+          >
+            {isBangla ? "র" : "RI"}
+          </Link>
         </div>
-        <p className="text-[11px] text-muted-foreground leading-relaxed">
-          {t("nav.safetyText")}
-        </p>
-      </div>
-    </aside>
+      </aside>
+    </TooltipProvider>
   );
 }
 
@@ -180,46 +197,50 @@ export function MobileTabBar() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 flex h-16 border-t border-border/80 bg-background/95 backdrop-blur-md md:hidden px-2 pb-safe"
+      className="fixed bottom-3 left-3 right-3 z-40 flex h-16 items-center justify-around rounded-full border border-border/80 bg-card/90 dark:bg-card/90 backdrop-blur-xl md:hidden px-2 shadow-lg"
       aria-label="Mobile Navigation Bar"
     >
-      <div className="grid h-full w-full grid-cols-5 items-center">
-        {NAV_ITEMS.map((item) => {
-          const isActive =
-            pathname === item.href ||
-            (item.href !== "/" && pathname.startsWith(item.href));
-          const Icon = item.icon;
-          const displayLabel = isBangla ? item.shortBn : item.shortEn;
+      {NAV_ITEMS.map((item) => {
+        const isActive =
+          pathname === item.href ||
+          (item.href !== "/" && pathname.startsWith(item.href));
+        const Icon = item.icon;
+        const displayLabel = isBangla ? item.shortBn : item.shortEn;
 
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={cn(
+              "relative flex flex-col items-center justify-center size-12 rounded-full transition-all duration-200 touch-manipulation cursor-pointer",
+              isActive
+                ? "pill-active-dark shadow-sm scale-105"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+            aria-label={displayLabel}
+          >
+            <div className="relative flex items-center justify-center">
+              <Icon
+                className={cn(
+                  "size-5",
+                  isActive ? "text-white dark:text-emerald-950 stroke-[2.2]" : "stroke-[1.8]"
+                )}
+              />
+              {item.badge ? (
+                <span className="absolute -top-1 -right-1 flex size-2 rounded-full bg-rose-500 ring-1 ring-background" />
+              ) : null}
+            </div>
+            <span
               className={cn(
-                "relative flex h-full flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors touch-manipulation px-0.5",
-                isActive
-                  ? "text-primary font-bold"
-                  : "text-muted-foreground hover:text-foreground"
+                "text-[9px] truncate max-w-[48px] leading-tight font-medium mt-0.5",
+                isActive ? "text-white dark:text-emerald-950 font-bold" : "text-muted-foreground"
               )}
             >
-              <div className="relative">
-                <Icon className={cn("size-5", isActive && "stroke-[2.5]")} />
-                {item.badge ? (
-                  <span className="absolute -top-1 -right-2 flex size-3.5 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-destructive-foreground">
-                    {item.badge}
-                  </span>
-                ) : null}
-              </div>
-              <span className="truncate max-w-[64px] text-[10px] text-center leading-tight">
-                {displayLabel}
-              </span>
-              {isActive ? (
-                <span className="absolute bottom-1 h-1 w-5 rounded-full bg-primary" />
-              ) : null}
-            </Link>
-          );
-        })}
-      </div>
+              {displayLabel}
+            </span>
+          </Link>
+        );
+      })}
     </nav>
   );
 }

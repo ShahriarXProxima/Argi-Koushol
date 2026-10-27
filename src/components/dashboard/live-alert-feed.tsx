@@ -143,15 +143,15 @@ export function LiveAlertFeed({ initialAlerts = [] }: LiveAlertFeedProps) {
   };
 
   return (
-    <Card className="flex flex-col h-full border-border/80 shadow-sm">
-      <CardHeader className="pb-3 border-b border-border/60">
+    <Card className="flex flex-col h-full rounded-[28px] border-border/80 shadow-xs overflow-hidden">
+      <CardHeader className="pb-3 border-b border-border/60 bg-card/60 backdrop-blur-xs">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="flex size-8 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              <Bell className="size-4" />
+          <div className="flex items-center gap-2.5">
+            <div className="flex size-9 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <Bell className="size-4.5" />
             </div>
             <div>
-              <CardTitle className="text-base font-bold flex items-center gap-2">
+              <CardTitle className="text-base font-bold flex items-center gap-2 font-heading">
                 <span>{t("feed.title")}</span>
                 {unreadCount > 0 ? (
                   <span className="flex size-2 rounded-full bg-destructive animate-pulse" />
@@ -163,14 +163,14 @@ export function LiveAlertFeed({ initialAlerts = [] }: LiveAlertFeedProps) {
             </div>
           </div>
 
-          <Badge variant="outline" className="text-[11px] gap-1 px-2 py-0.5 font-medium">
+          <Badge variant="outline" className="text-[11px] gap-1 px-3 py-1 font-semibold rounded-full shadow-xs">
             <Radio className="size-2.5 text-emerald-500 animate-pulse" />
             <span>{unreadCount} {t("common.active")}</span>
           </Badge>
         </div>
       </CardHeader>
 
-      <CardContent className="p-3 flex-1 overflow-y-auto max-h-[540px] space-y-2.5 scrollbar-none">
+      <CardContent className="p-4 flex-1 overflow-y-auto max-h-[540px] space-y-3 scrollbar-none">
         {alerts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground space-y-2">
             <div className="flex size-12 items-center justify-center rounded-2xl bg-secondary text-primary">
@@ -190,21 +190,21 @@ export function LiveAlertFeed({ initialAlerts = [] }: LiveAlertFeedProps) {
             return (
               <div
                 key={alert.id}
-                className={`group relative rounded-xl border p-3 transition-all duration-300 animate-in fade-in slide-in-from-top-2 motion-reduce:animate-none ${
+                className={`group relative rounded-2xl border p-3.5 transition-all duration-300 animate-in fade-in slide-in-from-top-2 motion-reduce:animate-none ${
                   alert.read
                     ? "border-border/50 bg-background/40 opacity-75"
-                    : "border-border/90 bg-card shadow-xs hover:border-primary/40"
+                    : "border-border/90 bg-card shadow-xs hover:border-primary/40 hover:shadow-sm"
                 }`}
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <div className={`flex size-7 items-center justify-center rounded-lg ${sourceColorClass}`}>
+                    <div className={`flex size-7 items-center justify-center rounded-xl ${sourceColorClass}`}>
                       <SourceIcon className="size-3.5" />
                     </div>
                     <div>
                       <div className="flex items-center gap-1.5 flex-wrap">
                         {getSeverityBadge(alert.severity)}
-                        <span className="text-[10px] text-muted-foreground font-medium">
+                        <span className="text-[10px] text-muted-foreground font-semibold">
                           {sourceLabel}
                         </span>
                       </div>
@@ -220,7 +220,7 @@ export function LiveAlertFeed({ initialAlerts = [] }: LiveAlertFeedProps) {
                         size="icon-xs"
                         variant="ghost"
                         onClick={(e) => handleMarkAsRead(alert.id, e)}
-                        className="size-6 rounded-md hover:bg-emerald-500/10 hover:text-emerald-600 text-muted-foreground"
+                        className="size-6 rounded-full hover:bg-emerald-500/10 hover:text-emerald-600 text-muted-foreground cursor-pointer"
                         title="পঠিত চিহ্নিত করুন"
                       >
                         <Check className="size-3" />
@@ -230,7 +230,7 @@ export function LiveAlertFeed({ initialAlerts = [] }: LiveAlertFeedProps) {
                   </div>
                 </div>
 
-                <div className="mt-2 space-y-1">
+                <div className="mt-2.5 space-y-1">
                   <p className="text-xs font-bold text-foreground leading-snug">
                     {alert.title}
                   </p>
@@ -240,8 +240,8 @@ export function LiveAlertFeed({ initialAlerts = [] }: LiveAlertFeedProps) {
                 </div>
 
                 {alert.field?.name ? (
-                  <div className="mt-2 flex items-center justify-between text-[10px] text-foreground/80 font-medium pt-1.5 border-t border-border/40">
-                    <span>{alert.field.name} • {alert.field.crop}</span>
+                  <div className="mt-2.5 flex items-center justify-between text-[10px] text-foreground/80 font-medium pt-2 border-t border-border/40">
+                    <span className="font-semibold">{alert.field.name} • {alert.field.crop}</span>
                     <span className="font-mono text-[9px] uppercase tracking-wide text-foreground/70">
                       ID: #{alert.id.slice(-5)}
                     </span>
