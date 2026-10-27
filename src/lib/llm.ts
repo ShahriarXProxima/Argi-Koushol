@@ -13,6 +13,7 @@ export interface LLMToolCall {
   args: Record<string, unknown>;
   id?: string;
   result?: string;
+  thoughtSignature?: string;
 }
 
 export interface LLMMessage {
@@ -56,18 +57,32 @@ export class GeminiProvider implements LLMProvider {
 
   constructor(apiKey?: string, model?: string) {
     this.apiKey = apiKey ?? process.env.GEMINI_API_KEY ?? "";
-    this.model = model ?? process.env.LLM_MODEL ?? "gemini-2.5-flash";
+    this.model = model ?? process.env.LLM_MODEL ?? "gemini-3.5-flash";
 
     if (this.apiKey.trim().length > 0) {
       this.ai = new GoogleGenAI({ apiKey: this.apiKey.trim() });
     }
   }
 
+  private getClient(): { ai: GoogleGenAI; model: string } | null {
+    const key = (this.apiKey || process.env.GEMINI_API_KEY || "").trim();
+    if (!key || key.includes("your-")) return null;
+
+    if (!this.ai || this.apiKey !== key) {
+      this.apiKey = key;
+      this.ai = new GoogleGenAI({ apiKey: key });
+    }
+
+    const modelName = this.model || process.env.LLM_MODEL || "gemini-3.5-flash";
+    return { ai: this.ai, model: modelName };
+  }
+
   async generate(options: LLMGenerateOptions): Promise<LLMGenerateResult> {
+    const client = this.getClient();
     // If Gemini API key is available, execute call via @google/genai
-    if (this.ai && this.apiKey.trim().length > 0) {
+    if (client) {
       try {
-        return await this.generateWithGemini(options);
+        return await this.generateWithGemini(options, client.ai, client.model);
       } catch (err: unknown) {
         console.warn("[GeminiProvider] Gemini API call failed, falling back to heuristic engine:", err);
       }
@@ -77,8 +92,11 @@ export class GeminiProvider implements LLMProvider {
     return this.generateFallback(options);
   }
 
-  private async generateWithGemini(options: LLMGenerateOptions): Promise<LLMGenerateResult> {
-    if (!this.ai) throw new Error("GoogleGenAI client not initialized.");
+  private async generateWithGemini(
+    options: LLMGenerateOptions,
+    aiClient: GoogleGenAI,
+    modelName: string
+  ): Promise<LLMGenerateResult> {
 
     // Convert messages to GoogleGenAI Content format
     const contents: Content[] = [];
@@ -99,6 +117,7 @@ export class GeminiProvider implements LLMProvider {
                 args: tc.args,
                 id: tc.id,
               },
+              ...(tc.thoughtSignature ? { thoughtSignature: tc.thoughtSignature } : {}),
             })),
           });
         } else {
@@ -153,8 +172,8 @@ export class GeminiProvider implements LLMProvider {
       config.responseJsonSchema = options.jsonSchema;
     }
 
-    const response = await this.ai.models.generateContent({
-      model: this.model,
+    const response = await aiClient.models.generateContent({
+      model: modelName,
       contents,
       config,
     });
@@ -162,7 +181,18 @@ export class GeminiProvider implements LLMProvider {
     const text = response.text || "";
     const toolCalls: LLMToolCall[] = [];
 
-    if (response.functionCalls && response.functionCalls.length > 0) {
+    if (response.candidates?.[0]?.content?.parts) {
+      for (const part of response.candidates[0].content.parts) {
+        if (part.functionCall) {
+          toolCalls.push({
+            name: part.functionCall.name || "",
+            args: (part.functionCall.args as Record<string, unknown>) || {},
+            id: part.functionCall.id,
+            thoughtSignature: (part as Record<string, unknown>).thoughtSignature as string | undefined,
+          });
+        }
+      }
+    } else if (response.functionCalls && response.functionCalls.length > 0) {
       for (const fc of response.functionCalls) {
         toolCalls.push({
           name: fc.name || "",
@@ -491,7 +521,7 @@ export async function classifyLeafImage(options: ClassifyLeafOptions): Promise<C
   if (apiKey && apiKey.length > 0 && !apiKey.includes("your-")) {
     try {
       const ai = new GoogleGenAI({ apiKey });
-      const model = process.env.LLM_MODEL || "gemini-2.5-flash";
+      const model = process.env.LLM_MODEL || "gemini-3.5-flash";
 
       const promptText =
         "You are an expert plant pathologist. Analyze this agricultural crop leaf image for disease or health status. " +

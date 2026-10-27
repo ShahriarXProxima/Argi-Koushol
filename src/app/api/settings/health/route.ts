@@ -89,9 +89,9 @@ export async function GET() {
         description: useN8n ? "External autonomous webhook" : "Local autonomous event pipeline fallback",
       },
       llm: {
-        name: "Gemini 2.5 Flash LLM",
+        name: "Gemini 3.5 Flash LLM",
         status: llmStatus,
-        model: process.env.LLM_MODEL || "gemini-2.5-flash",
+        model: process.env.LLM_MODEL || "gemini-3.5-flash",
         description: "Vision classification & agronomist reasoning",
       },
       twilio: {
