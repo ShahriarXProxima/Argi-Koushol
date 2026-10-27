@@ -63,6 +63,10 @@ export async function POST(request: Request) {
     const reading = await recordSensorReading(parsed.data);
     return jsonSuccess({ success: true, reading }, 201);
   } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (message.includes("not found")) {
+      return jsonError("NOT_FOUND", message, 404);
+    }
     console.error("Error recording sensor reading:", error);
     return jsonError("INTERNAL_ERROR", "Failed to record sensor reading.", 500);
   }

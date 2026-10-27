@@ -27,14 +27,17 @@ export async function GET() {
   const n8nWebhookUrl = process.env.N8N_WEBHOOK_URL;
   if (useN8n && n8nWebhookUrl && !n8nWebhookUrl.includes("example.com")) {
     try {
+      // Use official n8n /healthz endpoint instead of sending HEAD to webhook
+      const parsedUrl = new URL(n8nWebhookUrl);
+      const healthUrl = `${parsedUrl.protocol}//${parsedUrl.host}/healthz`;
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 2000);
-      const res = await fetch(n8nWebhookUrl, {
-        method: "HEAD",
+      const res = await fetch(healthUrl, {
+        method: "GET",
         signal: controller.signal,
       });
       clearTimeout(timeout);
-      n8nStatus = res.status < 500 ? "online" : "offline";
+      n8nStatus = res.ok || res.status < 500 ? "online" : "offline";
     } catch {
       n8nStatus = "offline";
     }

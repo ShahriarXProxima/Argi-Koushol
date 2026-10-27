@@ -41,6 +41,16 @@ export async function getReadings(fieldId: string, hours = 24) {
 export async function recordSensorReading(input: RecordReadingInput) {
   const recordedAt = input.recordedAt ? new Date(input.recordedAt) : new Date();
 
+  // Validate that target field exists
+  const field = await prisma.field.findUnique({
+    where: { id: input.fieldId },
+    select: { id: true },
+  });
+
+  if (!field) {
+    throw new Error(`Field not found with ID '${input.fieldId}'`);
+  }
+
   // 1. Create reading row
   const reading = await prisma.sensorReading.create({
     data: {
