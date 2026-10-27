@@ -38,7 +38,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ ($env.APP_URL || 'http://host.docker.internal:3000') }}/api/sensors",
+        "url": "={{ ($env.APP_URL || 'http://localhost:3000') }}/api/sensors",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -100,7 +100,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ ($env.APP_URL || 'http://host.docker.internal:3000') }}/api/decide",
+        "url": "={{ ($env.APP_URL || 'http://localhost:3000') }}/api/decide",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -131,7 +131,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ ($env.APP_URL || 'http://host.docker.internal:3000') }}/api/decisions",
+        "url": "={{ ($env.APP_URL || 'http://localhost:3000') }}/api/decisions",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [

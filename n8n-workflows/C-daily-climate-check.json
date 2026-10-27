@@ -24,7 +24,7 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "={{ ($env.APP_URL || 'http://host.docker.internal:3000') }}/api/fields",
+        "url": "={{ ($env.APP_URL || 'http://localhost:3000') }}/api/fields",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -62,7 +62,7 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "={{ ($env.APP_URL || 'http://host.docker.internal:3000') }}/api/weather/{{ $json.id }}",
+        "url": "={{ ($env.APP_URL || 'http://localhost:3000') }}/api/weather/{{ $json.id }}",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -86,7 +86,7 @@
     {
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (let i = 0; i < items.length; i++) {\n  const weather = items[i].json.weather || items[i].json;\n  const field = $('Split Fields into Items').all()[i]?.json || {};\n\n  const rainProb = Number(weather.rainProbability6h || 0);\n  const rainMm = Number(weather.rainMm48h || 0);\n  const tempMax = Number(weather.tempMax || 30);\n  const riskBadges = weather.riskBadges || [];\n\n  let hasRisk = false;\n  let action = 'INSPECT';\n  let severity = 'MEDIUM';\n  let riskType = 'NORMAL';\n  let messageEn = '';\n  let messageBn = '';\n  let reasoning = '';\n\n  if (rainProb > 50 || rainMm >= 20 || riskBadges.includes('Heavy rain')) {\n    hasRisk = true;\n    riskType = 'HEAVY_RAIN';\n    action = 'PAUSE_IRRIGATION';\n    severity = 'HIGH';\n    messageEn = `${field.name} (${field.crop}): Heavy rain forecast (${rainProb}% prob, ${rainMm}mm). Irrigation paused to avoid waterlogging.`;\n    messageBn = `${field.name} (${field.crop}): আগামী ২৪ ঘণ্টায় ভারী বৃষ্টির সম্ভাবনা (${rainProb}%, ${rainMm} মিমি)। জলাবদ্ধতা এড়াতে সেচ বন্ধ রাখা হয়েছে।`;\n    reasoning = `Daily 06:00 Climate Check: Rain probability is ${rainProb}% with ${rainMm}mm rainfall expected. Pausing irrigation and delaying spray.`;\n  } else if (tempMax >= 38 || riskBadges.includes('Heat stress')) {\n    hasRisk = true;\n    riskType = 'HEATWAVE';\n    action = 'IRRIGATE';\n    severity = 'HIGH';\n    messageEn = `${field.name} (${field.crop}): Extreme heatwave alert (${tempMax}°C max). Supplemental morning irrigation scheduled to mitigate heat stress.`;\n    messageBn = `${field.name} (${field.crop}): তীব্র তাপপ্রবাহের সতর্কবার্তা (সর্বোচ্চ ${tempMax}°C)। ফসলের আর্দ্রতা বজায় রাখতে সম্পূরক সকালের সেচ নির্ধারণ করা হয়েছে।`;\n    reasoning = `Daily 06:00 Climate Check: Forecast peak temperature is ${tempMax}°C. Supplemental cooling irrigation required.`;\n  } else if (riskBadges.includes('Frost')) {\n    hasRisk = true;\n    riskType = 'FROST';\n    action = 'INSPECT';\n    severity = 'HIGH';\n    messageEn = `${field.name} (${field.crop}): Frost warning detected. Inspect sensitive crop growth stages.`;\n    messageBn = `${field.name} (${field.crop}): কুয়াশা ও শৈত্যপ্রবাহের ঝুঁকি শনাক্ত হয়েছে। সংবেদনশীল ফসল পরিদর্শন করুন।`;\n    reasoning = `Daily 06:00 Climate Check: Low temperature/frost condition detected. Recommending manual field inspection.`;\n  }\n\n  results.push({\n    json: {\n      fieldId: field.id,\n      fieldName: field.name,\n      crop: field.crop,\n      hasRisk,\n      riskType,\n      action,\n      severity,\n      messageEn,\n      messageBn,\n      reasoning,\n      weather: {\n        rainProbability6h: rainProb,\n        rainMm48h: rainMm,\n        tempMax\n      }\n    }\n  });\n}\n\nreturn results;"
+        "jsCode": "const items = $input.all();\nconst results = [];\n\nfor (let i = 0; i < items.length; i++) {\n  const weather = items[i].json.weather || items[i].json;\n  const field = $('Split Fields into Items').all()[i]?.json || {};\n\n  const rainProb = Number(weather.rainProbability6h || 0);\n  const rainMm = Number(weather.rainMm48h || 0);\n  const tempMax = Number(weather.tempMax || 30);\n  const riskBadges = weather.riskBadges || [];\n\n  let hasRisk = false;\n  let action = 'INSPECT';\n  let severity = 'MEDIUM';\n  let riskType = 'NORMAL';\n  let messageEn = '';\n  let messageBn = '';\n  let reasoning = '';\n\n  if (rainProb > 50 || rainMm >= 20 || riskBadges.includes('Heavy rain')) {\n    hasRisk = true;\n    riskType = 'HEAVY_RAIN';\n    action = 'PAUSE_IRRIGATION';\n    severity = 'HIGH';\n    messageEn = `${field.name} (${field.crop}): Heavy rain forecast (${rainProb}% prob, ${rainMm}mm). Irrigation paused to avoid waterlogging.`;\n    messageBn = `${field.name} (${field.crop}): আগামী ২৪ ঘণ্টায় ভারী বৃষ্টির সম্ভাবনা (${rainProb}%, ${rainMm} মিমি)। জলাবদ্ধতা এড়াতে সেচ বন্ধ রাখা হয়েছে।`;\n    reasoning = `Daily 06:00 Climate Check: Rain probability is ${rainProb}% with ${rainMm}mm rainfall expected. Pausing irrigation and delaying spray.`;\n  } else if (tempMax >= 38 || riskBadges.includes('Heat stress')) {\n    hasRisk = true;\n    riskType = 'HEATWAVE';\n    action = 'IRRIGATE';\n    severity = 'HIGH';\n    messageEn = `${field.name} (${field.crop}): Extreme heatwave alert (${tempMax}°C max). Supplemental morning irrigation scheduled to mitigate heat stress.`;\n    messageBn = `${field.name} (${field.crop}): তীব্র তাপপ্রবাহের সতর্কবার্তা (সর্বোচ্চ ${tempMax}°C)। ফসলের আর্দ্রতা বজায় রাখতে সম্পূরক সকালের সেচ নির্ধারণ করা হয়েছে।`;\n    reasoning = `Daily 06:00 Climate Check: Forecast peak temperature is ${tempMax}°C. Supplemental cooling irrigation required.`;\n  } else if (riskBadges.includes('Frost')) {\n    hasRisk = true;\n    riskType = 'FROST';\n    action = 'INSPECT';\n    severity = 'HIGH';\n    messageEn = `${field.name} (${field.crop}): Frost hazard alert! Inspect protective mulch.`;\n    messageBn = `${field.name} (${field.crop}): কুয়াশা ও শৈত্যপ্রবাহ ঝুঁকি! দ্রুত পরিদর্শন করুন।`;\n    reasoning = `Daily 06:00 Climate Check: Frost risk badge detected for ${field.name}.`;\n  }\n\n  results.push({\n    json: {\n      fieldId: field.id,\n      fieldName: field.name,\n      crop: field.crop,\n      hasRisk,\n      riskType,\n      action,\n      severity,\n      messageEn,\n      messageBn,\n      reasoning,\n      weather: {\n        rainProbability6h: rainProb,\n        rainMm48h: rainMm,\n        tempMax\n      }\n    }\n  });\n}\n\nreturn results;"
       },
       "id": "c1a2b3c4-0005-4000-8000-000000000005",
       "name": "Analyze Climate Stress",
@@ -131,7 +131,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ ($env.APP_URL || 'http://host.docker.internal:3000') }}/api/decisions",
+        "url": "={{ ($env.APP_URL || 'http://localhost:3000') }}/api/decisions",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -161,25 +161,34 @@
     },
     {
       "parameters": {
-        "operation": "send",
-        "from": "={{ $env.TWILIO_WHATSAPP_FROM || 'whatsapp:+14155238886' }}",
-        "to": "={{ $env.FARMER_WHATSAPP_TO || 'whatsapp:+8801700000000' }}",
-        "message": "={{ '🌦️ [Agri-Koushol 06:00 Climate Check]\\n\\n' + $('Analyze Climate Stress').item.json.messageEn + '\\n\\n' + $('Analyze Climate Stress').item.json.messageBn }}"
+        "method": "POST",
+        "url": "={{ ($env.APP_URL || 'http://localhost:3000') }}/api/notify",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "x-api-key",
+              "value": "={{ $env.INGEST_API_KEY || 'dev-ingest-key' }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  body: '🌦️ [Agri-Koushol 06:00 Climate Check]\\n\\n' + $('Analyze Climate Stress').item.json.messageEn + '\\n\\n' + $('Analyze Climate Stress').item.json.messageBn\n}) }}",
+        "options": {}
       },
       "id": "c1a2b3c4-0008-4000-8000-000000000008",
       "name": "Send WhatsApp Climate Alert",
-      "type": "n8n-nodes-base.twilio",
-      "typeVersion": 1,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [
         1740,
         220
-      ],
-      "credentials": {
-        "twilioApi": {
-          "id": "TWILIO_CREDENTIALS_ID",
-          "name": "Twilio account"
-        }
-      }
+      ]
     }
   ],
   "connections": {

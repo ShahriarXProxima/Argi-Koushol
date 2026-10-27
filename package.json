@@ -14,6 +14,7 @@
     "test:agent": "tsx scripts/test-agent.ts",
     "test:decide": "tsx scripts/test-decide.ts",
     "feeder": "tsx scripts/feeder.ts",
+    "n8n": "n8n",
     "postinstall": "prisma skills sync || exit 0"
   },
   "dependencies": {

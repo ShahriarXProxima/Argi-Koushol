@@ -5,7 +5,6 @@
       "parameters": {
         "httpMethod": "POST",
         "path": "agri-detect",
-        "authentication": "headerAuth",
         "responseMode": "responseNode",
         "options": {}
       },
@@ -17,13 +16,7 @@
         180,
         300
       ],
-      "webhookId": "a0f7c22e-1e24-4f46-86c4-1a98075f8501",
-      "credentials": {
-        "headerAuth": {
-          "id": "HEADER_AUTH_CREDENTIALS_ID",
-          "name": "Agri-Koushol Shared Secret (x-shared-secret)"
-        }
-      }
+      "webhookId": "a0f7c22e-1e24-4f46-86c4-1a98075f8501"
     },
     {
       "parameters": {
@@ -85,7 +78,7 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "={{ ($env.APP_URL || 'http://host.docker.internal:3000') }}/api/fields/{{ $('Webhook').item.json.body ? $('Webhook').item.json.body.fieldId : $('Webhook').item.json.fieldId }}",
+        "url": "={{ ($env.APP_URL || 'http://localhost:3000') }}/api/fields/{{ $('Webhook').item.json.body ? $('Webhook').item.json.body.fieldId : $('Webhook').item.json.fieldId }}",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -109,7 +102,7 @@
     {
       "parameters": {
         "method": "GET",
-        "url": "={{ ($env.APP_URL || 'http://host.docker.internal:3000') }}/api/weather/{{ $('Webhook').item.json.body ? $('Webhook').item.json.body.fieldId : $('Webhook').item.json.fieldId }}",
+        "url": "={{ ($env.APP_URL || 'http://localhost:3000') }}/api/weather/{{ $('Webhook').item.json.body ? $('Webhook').item.json.body.fieldId : $('Webhook').item.json.fieldId }}",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -133,7 +126,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ ($env.APP_URL || 'http://host.docker.internal:3000') }}/api/decide",
+        "url": "={{ ($env.APP_URL || 'http://localhost:3000') }}/api/decide",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -164,7 +157,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ ($env.APP_URL || 'http://host.docker.internal:3000') }}/api/decisions",
+        "url": "={{ ($env.APP_URL || 'http://localhost:3000') }}/api/decisions",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -194,25 +187,34 @@
     },
     {
       "parameters": {
-        "operation": "send",
-        "from": "={{ $env.TWILIO_WHATSAPP_FROM || 'whatsapp:+14155238886' }}",
-        "to": "={{ $env.FARMER_WHATSAPP_TO || 'whatsapp:+8801700000000' }}",
-        "message": "={{ '🌾 [Agri-Koushol Autonomous Decision]\\n\\n' + $('POST Decide').item.json.decision.farmerMessage + '\\n\\n' + $('POST Decide').item.json.decision.farmerMessageBn + '\\n\\nReasoning: ' + $('POST Decide').item.json.decision.reasoning }}"
+        "method": "POST",
+        "url": "={{ ($env.APP_URL || 'http://localhost:3000') }}/api/notify",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "x-api-key",
+              "value": "={{ $env.INGEST_API_KEY || 'dev-ingest-key' }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  alertId: $('POST Decisions').item.json.alert ? $('POST Decisions').item.json.alert.id : undefined,\n  body: '🌾 [Agri-Koushol Autonomous Decision]\\n\\n' + $('POST Decide').item.json.decision.farmerMessage + '\\n\\n' + $('POST Decide').item.json.decision.farmerMessageBn + '\\n\\nReasoning: ' + $('POST Decide').item.json.decision.reasoning\n}) }}",
+        "options": {}
       },
       "id": "17c2e345-91ad-4fc0-071d-3b717e4ce878",
-      "name": "Send WhatsApp (Twilio)",
-      "type": "n8n-nodes-base.twilio",
-      "typeVersion": 1,
+      "name": "Send WhatsApp (Notify API)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [
         1640,
         180
-      ],
-      "credentials": {
-        "twilioApi": {
-          "id": "TWILIO_CREDENTIALS_ID",
-          "name": "Twilio account"
-        }
-      }
+      ]
     },
     {
       "parameters": {
@@ -299,14 +301,14 @@
       "main": [
         [
           {
-            "node": "Send WhatsApp (Twilio)",
+            "node": "Send WhatsApp (Notify API)",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Send WhatsApp (Twilio)": {
+    "Send WhatsApp (Notify API)": {
       "main": [
         [
           {
