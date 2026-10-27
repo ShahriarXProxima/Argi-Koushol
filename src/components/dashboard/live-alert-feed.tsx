@@ -190,7 +190,7 @@ export function LiveAlertFeed({ initialAlerts = [] }: LiveAlertFeedProps) {
             return (
               <div
                 key={alert.id}
-                className={`group relative rounded-xl border p-3 transition-all duration-300 animate-in fade-in slide-in-from-top-2 ${
+                className={`group relative rounded-xl border p-3 transition-all duration-300 animate-in fade-in slide-in-from-top-2 motion-reduce:animate-none ${
                   alert.read
                     ? "border-border/50 bg-background/40 opacity-75"
                     : "border-border/90 bg-card shadow-xs hover:border-primary/40"
@@ -231,18 +231,18 @@ export function LiveAlertFeed({ initialAlerts = [] }: LiveAlertFeedProps) {
                 </div>
 
                 <div className="mt-2 space-y-1">
-                  <h4 className="text-xs font-bold text-foreground leading-snug">
+                  <p className="text-xs font-bold text-foreground leading-snug">
                     {alert.title}
-                  </h4>
+                  </p>
                   <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-2">
                     {isBangla ? (alert.messageBn || alert.message) : (alert.message || alert.messageBn)}
                   </p>
                 </div>
 
                 {alert.field?.name ? (
-                  <div className="mt-2 flex items-center justify-between text-[10px] text-muted-foreground/80 pt-1.5 border-t border-border/40">
+                  <div className="mt-2 flex items-center justify-between text-[10px] text-foreground/80 font-medium pt-1.5 border-t border-border/40">
                     <span>{alert.field.name} • {alert.field.crop}</span>
-                    <span className="font-mono text-[9px] uppercase tracking-wide">
+                    <span className="font-mono text-[9px] uppercase tracking-wide text-foreground/70">
                       ID: #{alert.id.slice(-5)}
                     </span>
                   </div>

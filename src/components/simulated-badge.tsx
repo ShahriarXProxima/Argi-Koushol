@@ -24,7 +24,7 @@ export function SimulatedBadge({ className, label }: SimulatedBadgeProps) {
     <Badge
       variant="outline"
       className={cn(
-        "inline-flex items-center gap-1 border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-300 rounded-md select-none",
+        "inline-flex items-center gap-1 border-amber-600/30 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-amber-800 dark:text-amber-200 rounded-md select-none",
         className
       )}
     >

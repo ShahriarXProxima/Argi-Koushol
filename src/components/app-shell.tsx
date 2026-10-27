@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Sidebar, MobileTabBar } from "@/components/navigation";
 import { TopBar } from "@/components/top-bar";
+import { Footer } from "@/components/footer";
 import { ChatDock } from "@/components/chat-dock";
 
 interface AppShellProps {
@@ -23,6 +24,7 @@ export function AppShell({ children }: AppShellProps) {
         <main className="flex-1 p-4 md:p-8 pb-24 md:pb-8 max-w-7xl w-full mx-auto">
           {children}
         </main>
+        <Footer />
       </div>
 
       {/* Mobile bottom tab navigation */}

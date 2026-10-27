@@ -61,32 +61,32 @@ export function ForecastStrip({
     riskBadge = {
       label: "Heavy rain",
       labelBn: "ভারী বৃষ্টির ঝুঁকি",
-      variant: "destructive",
-      colorClass: "border-destructive/40 bg-destructive/10 text-destructive",
+      variant: "outline",
+      colorClass: "border-rose-500/40 bg-rose-500/10 text-rose-800 dark:text-rose-200 font-semibold",
       icon: CloudLightning,
     };
   } else if (tempMax >= 35) {
     riskBadge = {
       label: "Heat stress",
       labelBn: "তাপপ্রবাহ সতর্কতা",
-      variant: "secondary",
-      colorClass: "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300",
+      variant: "outline",
+      colorClass: "border-amber-600/40 bg-amber-500/10 text-amber-800 dark:text-amber-200 font-semibold",
       icon: Flame,
     };
   } else if (tempMax <= 5) {
     riskBadge = {
       label: "Frost",
       labelBn: "তুষারপাত ঝুঁকি",
-      variant: "secondary",
-      colorClass: "border-sky-500/40 bg-sky-500/10 text-sky-700 dark:text-sky-300",
+      variant: "outline",
+      colorClass: "border-sky-500/40 bg-sky-500/10 text-sky-800 dark:text-sky-200 font-semibold",
       icon: CloudRain,
     };
   } else if (soilMoisture < threshold && rainMm < 5) {
     riskBadge = {
       label: "Drought",
       labelBn: "খরা ও পানির ঘাটতি",
-      variant: "secondary",
-      colorClass: "border-amber-600/40 bg-amber-600/10 text-amber-700 dark:text-amber-300",
+      variant: "outline",
+      colorClass: "border-amber-600/40 bg-amber-600/10 text-amber-800 dark:text-amber-200 font-semibold",
       icon: Sun,
     };
   }

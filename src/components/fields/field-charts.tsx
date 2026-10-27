@@ -230,13 +230,14 @@ export function FieldCharts({ readings, threshold, decisions }: FieldChartsProps
                   }}
                 />
 
-                {/* Main soil moisture curve */}
+                {/* Main soil moisture curve - animation false to prevent flicker on new points */}
                 <Line
                   type="monotone"
                   dataKey="soilMoisture"
                   stroke="#059669"
                   strokeWidth={2.5}
                   dot={false}
+                  isAnimationActive={false}
                   activeDot={{ r: 5, fill: "#059669", stroke: "#ffffff", strokeWidth: 2 }}
                 />
 
@@ -372,6 +373,7 @@ export function FieldCharts({ readings, threshold, decisions }: FieldChartsProps
                   stroke="#ea580c"
                   strokeWidth={2}
                   dot={false}
+                  isAnimationActive={false}
                 />
                 <Line
                   yAxisId="humidity"
@@ -380,6 +382,7 @@ export function FieldCharts({ readings, threshold, decisions }: FieldChartsProps
                   stroke="#0284c7"
                   strokeWidth={2}
                   dot={false}
+                  isAnimationActive={false}
                 />
               </LineChart>
             </ResponsiveContainer>

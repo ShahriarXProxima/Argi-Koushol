@@ -1,0 +1,26 @@
+{
+  "name": "Agri-Koushol কৃষি কৌশল - Autonomous AI Farm Platform",
+  "short_name": "Agri-Koushol",
+  "description": "Autonomous AI farm management system with precision monitoring, weather safety guards, and crop optimization.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#166534",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}

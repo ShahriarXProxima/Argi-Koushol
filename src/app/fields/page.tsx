@@ -47,6 +47,30 @@ async function getProcessedFields() {
 async function FieldsListContent() {
   const fields = await getProcessedFields();
 
+  if (fields.length === 0) {
+    return (
+      <Card className="rounded-2xl border border-dashed border-border/80 bg-card p-12 text-center space-y-4">
+        <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+          <Sprout className="size-7" />
+        </div>
+        <div className="space-y-1.5 max-w-sm mx-auto">
+          <h3 className="text-lg font-bold text-foreground">
+            কোনো আবাদি জমি পাওয়া যায়নি (No Fields Found)
+          </h3>
+          <p className="text-xs text-muted-foreground">
+            আপনার অ্যাকাউন্টে এখনও কোনো কৃষি প্লট যুক্ত করা হয়নি। ডেমো ডাটা সিড করুন অথবা নতুন প্লট যোগ করুন।
+          </p>
+        </div>
+        <Link href="/settings">
+          <Button className="rounded-xl gap-2 font-semibold bg-primary text-primary-foreground mt-2">
+            <Plus className="size-4" />
+            <span>সেটিংস ও ডেমো প্যানেল</span>
+          </Button>
+        </Link>
+      </Card>
+    );
+  }
+
   const totalAreaHa = fields.reduce((acc, f) => acc + f.areaHa, 0);
   const totalBigha = (totalAreaHa * 7.47).toFixed(1);
   const flaggedFieldsCount = fields.filter((f) =>

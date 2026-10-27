@@ -6,6 +6,7 @@ import { SimulatedBadge } from "@/components/simulated-badge";
 import { Droplets, ShieldCheck, Bell, TrendingUp, ArrowUpRight } from "lucide-react";
 import type { DashboardKpis } from "@/lib/data/kpis";
 import { useI18n } from "@/lib/i18n";
+import { CountUp } from "@/components/ui/count-up";
 
 interface KpiCardsProps {
   kpis: DashboardKpis;
@@ -13,19 +14,7 @@ interface KpiCardsProps {
 
 export function KpiCards({ kpis }: KpiCardsProps) {
   const { isBangla, t } = useI18n();
-
-  // Format water saved in liters
-  const formattedWater = new Intl.NumberFormat(isBangla ? "bn-BD" : "en-US").format(
-    kpis.waterSavedLiters
-  );
-  const formattedYield = new Intl.NumberFormat(isBangla ? "bn-BD" : "en-US", {
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 2,
-  }).format(kpis.predictedYield.averageTonsPerHa);
-
-  const formattedAlerts = isBangla
-    ? new Intl.NumberFormat("bn-BD").format(kpis.activeAlerts)
-    : kpis.activeAlerts.toString();
+  const locale = isBangla ? "bn-BD" : "en-US";
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -42,7 +31,7 @@ export function KpiCards({ kpis }: KpiCardsProps) {
         <CardContent className="space-y-2">
           <div className="flex items-baseline justify-between">
             <div className="text-2xl font-bold tracking-tight text-foreground">
-              {formattedWater}{" "}
+              <CountUp value={kpis.waterSavedLiters} locale={locale} />{" "}
               <span className="text-sm font-medium text-muted-foreground">
                 {t("kpi.waterUnit")}
               </span>
@@ -50,7 +39,7 @@ export function KpiCards({ kpis }: KpiCardsProps) {
             <SimulatedBadge label={t("common.simulated")} />
           </div>
           <div className="flex items-center gap-1.5 text-xs">
-            <span className="inline-flex items-center font-semibold text-emerald-600 dark:text-emerald-400">
+            <span className="inline-flex items-center font-bold text-emerald-700 dark:text-emerald-300">
               <ArrowUpRight className="size-3.5" />
               {isBangla ? "+১৮%" : "+18%"}
             </span>
@@ -74,14 +63,12 @@ export function KpiCards({ kpis }: KpiCardsProps) {
         <CardContent className="space-y-2">
           <div className="flex items-baseline justify-between">
             <div className="text-2xl font-bold tracking-tight text-foreground">
-              {isBangla
-                ? `${new Intl.NumberFormat("bn-BD").format(kpis.chemicalsSavedPercent)}%`
-                : `${kpis.chemicalsSavedPercent}%`}
+              <CountUp value={kpis.chemicalsSavedPercent} suffix="%" locale={locale} />
             </div>
             <SimulatedBadge label={t("common.precision")} />
           </div>
           <div className="flex items-center gap-1.5 text-xs">
-            <span className="inline-flex items-center font-semibold text-emerald-600 dark:text-emerald-400">
+            <span className="inline-flex items-center font-bold text-emerald-700 dark:text-emerald-300">
               <ArrowUpRight className="size-3.5" />
               {t("kpi.chemicalsSpot")}
             </span>
@@ -105,7 +92,7 @@ export function KpiCards({ kpis }: KpiCardsProps) {
         <CardContent className="space-y-2">
           <div className="flex items-baseline justify-between">
             <div className="text-2xl font-bold tracking-tight text-foreground">
-              {formattedAlerts}{" "}
+              <CountUp value={kpis.activeAlerts} locale={locale} />{" "}
               <span className="text-sm font-medium text-muted-foreground">
                 {t("kpi.alertsUnit")}
               </span>
@@ -138,7 +125,11 @@ export function KpiCards({ kpis }: KpiCardsProps) {
         <CardContent className="space-y-2">
           <div className="flex items-baseline justify-between">
             <div className="text-2xl font-bold tracking-tight text-foreground">
-              {formattedYield}{" "}
+              <CountUp
+                value={kpis.predictedYield.averageTonsPerHa}
+                decimals={1}
+                locale={locale}
+              />{" "}
               <span className="text-sm font-medium text-muted-foreground">
                 {t("kpi.yieldUnit")}
               </span>
@@ -146,7 +137,7 @@ export function KpiCards({ kpis }: KpiCardsProps) {
             <SimulatedBadge label={t("common.simulated")} />
           </div>
           <div className="flex items-center gap-1.5 text-xs">
-            <span className="inline-flex items-center font-semibold text-emerald-600 dark:text-emerald-400">
+            <span className="inline-flex items-center font-bold text-emerald-700 dark:text-emerald-300">
               <ArrowUpRight className="size-3.5" />
               {isBangla ? "+১২%" : "+12%"}
             </span>

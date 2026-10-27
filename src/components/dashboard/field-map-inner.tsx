@@ -205,6 +205,7 @@ export default function FieldMapInner({
                       center={center}
                       radius={7}
                       pathOptions={{
+                        className: "detection-pulse-marker",
                         color: "#ffffff",
                         fillColor: "#dc2626",
                         fillOpacity: 1,

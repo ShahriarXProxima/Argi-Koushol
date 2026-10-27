@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { LanguageToggle } from "@/components/language-toggle";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { SystemStatusPill } from "@/components/system-status-pill";
 import { useI18n } from "@/lib/i18n";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
@@ -69,6 +70,9 @@ export function TopBar() {
 
       {/* Right side controls */}
       <div className="flex items-center gap-2 md:gap-3">
+        {/* System Health Status Pill (MCP, n8n, LLM) */}
+        <SystemStatusPill />
+
         {/* Mobile farmer short indicator */}
         <div className="flex items-center gap-1.5 md:hidden pr-1">
           <Avatar className="size-8 rounded-lg border border-primary/20 bg-secondary/80">

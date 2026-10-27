@@ -352,10 +352,11 @@ export function ChatWidget() {
       {/* Floating Trigger Button (Bottom-Right)                         */}
       {/* ------------------------------------------------------------- */}
       {!isOpen && (
-        <div
+        <aside
           id="chat-dock-container"
-          className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-40"
+          role="complementary"
           aria-label="AI Farm Assistant Dock"
+          className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-40"
         >
           <Button
             size="icon"
@@ -378,7 +379,7 @@ export function ChatWidget() {
             )}
             <span className="sr-only">Open Shoshsho-Prohori Chat</span>
           </Button>
-        </div>
+        </aside>
       )}
 
       {/* ------------------------------------------------------------- */}

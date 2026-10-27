@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Noto_Sans_Bengali } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -20,10 +20,59 @@ const notoSansBengali = Noto_Sans_Bengali({
   display: "swap",
 });
 
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#166534" },
+    { media: "(prefers-color-scheme: dark)", color: "#0f172a" },
+  ],
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
+
 export const metadata: Metadata = {
-  title: "Agri-Koushol | Autonomous AI Farm Platform",
+  applicationName: "Agri-Koushol কৃষি কৌশল",
+  title: {
+    default: "Agri-Koushol কৃষি কৌশল | Autonomous AI Farm Platform",
+    template: "%s | Agri-Koushol কৃষি কৌশল",
+  },
   description:
-    "Autonomous AI farm management system with precision monitoring, weather safety guards, and crop optimization.",
+    "Autonomous AI farm platform with IoT soil telemetry, weather safety guards, drone crop vision, and harvest yield optimization.",
+  keywords: [
+    "Agri-Koushol",
+    "কৃষি কৌশল",
+    "Smart Agriculture",
+    "Autonomous Farm",
+    "Precision Irrigation",
+    "Crop Guardian",
+    "Bangladesh Agriculture",
+  ],
+  authors: [{ name: "Agri-Koushol Engineering Team" }],
+  creator: "Agri-Koushol",
+  manifest: "/manifest.json",
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icon.svg",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Agri-Koushol",
+  },
+  openGraph: {
+    title: "Agri-Koushol কৃষি কৌশল | Autonomous AI Farm Platform",
+    description:
+      "Autonomous AI farm management system with precision monitoring, weather safety guards, and crop optimization.",
+    url: "https://agri-koushol.local",
+    siteName: "Agri-Koushol",
+    locale: "bn_BD",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Agri-Koushol কৃষি কৌশল",
+    description: "Autonomous AI farm management system with precision monitoring.",
+  },
 };
 
 export default function RootLayout({

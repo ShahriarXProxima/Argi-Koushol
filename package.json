@@ -13,6 +13,7 @@
     "mcp:test": "tsx mcp-server/test-client.ts",
     "test:agent": "tsx scripts/test-agent.ts",
     "test:decide": "tsx scripts/test-decide.ts",
+    "feeder": "tsx scripts/feeder.ts",
     "postinstall": "prisma skills sync || exit 0"
   },
   "dependencies": {
