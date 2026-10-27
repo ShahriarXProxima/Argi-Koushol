@@ -277,6 +277,17 @@ export class GeminiProvider implements LLMProvider {
         };
       }
 
+      // Check if MCP tools failed due to server being stopped / offline
+      if (toolResults.some((tr) => tr.content.includes("TOOL_EXECUTION_FAILED"))) {
+        const isBangla = /[\u0980-\u09FF]/.test(userPrompt);
+        return {
+          text: isBangla
+            ? "দুঃখিত, কৃষি সেন্সর ও টুল সার্ভার (MCP Server) সাময়িকভাবে অফলাইনে রয়েছে। সরাসরি সেন্সর ডাটা সংগ্রহ করা যায়নি। অনুগ্রহ করে কিছুক্ষণ পর আবার চেষ্টা করুন।"
+            : "Sorry, the agricultural sensor and tool server (MCP Server) is currently offline or disconnected. Live field telemetry could not be retrieved. Please try again shortly.",
+          toolCalls: [],
+        };
+      }
+
       // Analyze tool results
       let moisture = 32.1;
       let threshold = 35;
@@ -297,15 +308,38 @@ export class GeminiProvider implements LLMProvider {
 
       const isBangla = /[\u0980-\u09FF]/.test(userPrompt);
 
+      // If rain risk > 50%, pause irrigation and create a Decision row if not already paused
+      const hasPaused = toolResults.some((tr) => tr.toolName === "pause_irrigation");
+      let fieldId = "cmvpap35100019ep849ii6yh8";
+      const idMatch = userPrompt.match(/id[="':\s]+([a-zA-Z0-9_-]+)/i) ||
+                      userPrompt.match(/fieldId[="':\s]+([a-zA-Z0-9_-]+)/i);
+      if (idMatch) fieldId = idMatch[1];
+
+      if (rainProb > 50 && !hasPaused) {
+        return {
+          text: "",
+          toolCalls: [
+            {
+              name: "pause_irrigation",
+              args: {
+                field_id: fieldId,
+                reason: `Heavy rain expected within 6 hours (${rainProb}% probability). Pausing irrigation to prevent waterlogging.`,
+                source: "CHATBOT",
+              },
+            },
+          ],
+        };
+      }
+
       if (rainProb > 50) {
         if (isBangla) {
           return {
-            text: `উত্তর মাঠ (Field A)-এ বর্তমান মাটির আর্দ্রতা ${moisture}%, যা ${threshold}% থ্রেশহোল্ডের নিচে রয়েছে। তবে আগামী ৬ ঘণ্টায় ভারী বৃষ্টির সম্ভাবনা (${rainProb}%) রয়েছে। তাই এখনই সেচ দেওয়া উচিত হবে না; প্রাকৃতিক বৃষ্টির পর আর্দ্রতা পর্যবেক্ষণ করুন। (তথ্যটি সিমুলেটেড${isStale ? " ও ক্যাশড" : ""})।`,
+            text: `উত্তর মাঠ (Field A)-এ বর্তমান মাটির আর্দ্রতা ${moisture}%, যা ${threshold}% থ্রেশহোল্ডের নিচে রয়েছে। তবে আগামী ৬ ঘণ্টায় ভারী বৃষ্টির সম্ভাবনা (${rainProb}%) রয়েছে। তাই এখনই সেচ দেওয়া উচিত হবে না; সেচ স্থগিত রাখার সিদ্ধান্ত (PAUSE_IRRIGATION) গ্রহণ করা হয়েছে। প্রাকৃতিক বৃষ্টির পর আর্দ্রতা পর্যবেক্ষণ করুন। (তথ্যটি সিমুলেটেড${isStale ? " ও ক্যাশড" : ""})।`,
             toolCalls: [],
           };
         } else {
           return {
-            text: `In Field A, current soil moisture is ${moisture}%, which is below your irrigation threshold of ${threshold}%. However, heavy rainfall is expected within the next 6 hours (${rainProb}% probability). You should PAUSE or skip irrigation today to conserve water and prevent waterlogging. (Data is simulated${isStale ? ", stale cache" : ""}).`,
+            text: `In Field A, current soil moisture is ${moisture}%, which is below your irrigation threshold of ${threshold}%. However, heavy rainfall is expected within the next 6 hours (${rainProb}% probability). Irrigation has been paused (Decision row created) to conserve water and prevent waterlogging. (Data is simulated${isStale ? ", stale cache" : ""}).`,
             toolCalls: [],
           };
         }
@@ -321,6 +355,29 @@ export class GeminiProvider implements LLMProvider {
             toolCalls: [],
           };
         }
+      }
+    }
+
+    // 3. Question with no data (e.g. price of rice, general trivia)
+    if (
+      promptLower.includes("price") ||
+      promptLower.includes("দাম") ||
+      promptLower.includes("দর") ||
+      promptLower.includes("cost") ||
+      promptLower.includes("market") ||
+      promptLower.includes("টাকা")
+    ) {
+      const isBangla = /[\u0980-\u09FF]/.test(userPrompt);
+      if (isBangla) {
+        return {
+          text: "আমি দুঃখিত, আমি চাল বা কোনো ফসলের আগামীকালের বাজার দর বা মূল্য পরীক্ষা করতে পারি না। আমার কাছে কেবল আপনার মাঠের মাটির আর্দ্রতা, আবহাওয়া ও ড্রোন স্বাস্থ্য ডেটা অ্যাক্সেস রয়েছে, বাজারের মূল্যের তথ্য নেই।",
+          toolCalls: [],
+        };
+      } else {
+        return {
+          text: "I cannot check that. I only have access to farm telemetry (soil moisture sensors, weather forecast, and crop health status) and do not have access to commodity market pricing data. I cannot invent or predict market prices.",
+          toolCalls: [],
+        };
       }
     }
 
@@ -382,6 +439,15 @@ export const STAGED_CLASSIFICATIONS: Record<
       "Small angular water-soaked lesions across leaf blades",
       "Brown to black necrotic centers with yellow margins",
       "Translucent halo under direct sunlight inspection",
+    ],
+  },
+  low_confidence: {
+    label: "Suspected Pathogen (সম্ভাব্য রোগ লক্ষণ)",
+    confidence: 0.45,
+    symptoms: [
+      "Ambiguous faint chlorotic discoloration",
+      "Inconclusive pathogen morphology under aerial vision",
+      "Confidence 45% is below autonomous action safety threshold",
     ],
   },
   healthy: {

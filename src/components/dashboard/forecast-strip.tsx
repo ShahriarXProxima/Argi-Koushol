@@ -33,8 +33,11 @@ export function ForecastStrip({
     rainProbability6h: number;
     rainMm48h: number;
     tempMax: number;
-    forecast?: { condition?: string; advisory?: string };
+    stale?: boolean;
+    forecast?: { condition?: string; advisory?: string; stale?: boolean };
   } | null }).latestWeatherLog;
+
+  const isStale = Boolean(weather?.stale || weather?.forecast?.stale);
 
   const rainProb = weather?.rainProbability6h ?? 20;
   const rainMm = weather?.rainMm48h ?? 2.0;
@@ -123,6 +126,14 @@ export function ForecastStrip({
           </div>
 
           <div className="flex items-center gap-2 self-start sm:self-auto">
+            {isStale && (
+              <Badge
+                variant="outline"
+                className="h-6 px-2 text-xs font-semibold rounded-md border-amber-500/40 bg-amber-500/10 text-amber-800 dark:text-amber-200"
+              >
+                Stale (Cached)
+              </Badge>
+            )}
             <Badge
               variant="outline"
               className={`h-6 px-2 text-xs font-semibold rounded-md gap-1 ${riskBadge.colorClass}`}

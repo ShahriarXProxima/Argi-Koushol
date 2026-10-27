@@ -462,7 +462,7 @@ export async function getOrFetchWeather(
     }
   }
 
-  // 4. Fallback: Retrieve latest WeatherLog for this field and set stale: true
+  // 4. Fallback: Retrieve latest WeatherLog for this field that matches NORMAL scenario
   const latestLog = await prisma.weatherLog.findFirst({
     where: { fieldId: field.id },
     orderBy: { fetchedAt: "desc" },
@@ -473,52 +473,105 @@ export async function getOrFetchWeather(
       typeof latestLog.forecast === "object" && latestLog.forecast !== null
         ? (latestLog.forecast as Record<string, unknown>)
         : {};
-    const riskBadges =
-      Array.isArray(forecastObj.riskBadges) &&
-      forecastObj.riskBadges.every((b) => typeof b === "string")
-        ? (forecastObj.riskBadges as string[])
-        : calculateRiskBadges({
-            rainProbability6h: latestLog.rainProbability6h,
-            rainMm48h: latestLog.rainMm48h,
-            tempMax: latestLog.tempMax,
-            soilMoistureThreshold: field.soilMoistureThreshold,
-          });
 
-    return {
-      fieldId: field.id,
-      rainProbability6h: latestLog.rainProbability6h,
-      rainMm48h: latestLog.rainMm48h,
-      tempMax: latestLog.tempMax,
-      hourly: Array.isArray(forecastObj.hourly)
-        ? (forecastObj.hourly as HourlyForecastItem[])
-        : [],
-      riskBadges,
-      source: forecastObj.source === "demo_scenario" ? "demo_scenario" : "openweathermap",
-      stale: true,
-      fetchedAt: latestLog.fetchedAt,
-      condition:
-        typeof forecastObj.condition === "string"
-          ? forecastObj.condition
-          : "Partly Cloudy",
-      advisory:
-        typeof forecastObj.advisory === "string"
-          ? forecastObj.advisory
-          : "Showing cached weather data (offline fallback).",
-    };
+    const isStormOrHeatwaveDemoLog =
+      forecastObj.scenario === "HEAVY_RAIN_4H" || forecastObj.scenario === "HEATWAVE";
+
+    // Only reuse cached log if it does NOT originate from a heavy rain or heatwave demo simulation
+    if (!isStormOrHeatwaveDemoLog) {
+      const riskBadges =
+        Array.isArray(forecastObj.riskBadges) &&
+        forecastObj.riskBadges.every((b) => typeof b === "string")
+          ? (forecastObj.riskBadges as string[])
+          : calculateRiskBadges({
+              rainProbability6h: latestLog.rainProbability6h,
+              rainMm48h: latestLog.rainMm48h,
+              tempMax: latestLog.tempMax,
+              soilMoistureThreshold: field.soilMoistureThreshold,
+            });
+
+      return {
+        fieldId: field.id,
+        rainProbability6h: latestLog.rainProbability6h,
+        rainMm48h: latestLog.rainMm48h,
+        tempMax: latestLog.tempMax,
+        hourly: Array.isArray(forecastObj.hourly)
+          ? (forecastObj.hourly as HourlyForecastItem[])
+          : [],
+        riskBadges,
+        source: forecastObj.source === "demo_scenario" ? "demo_scenario" : "openweathermap",
+        stale: true,
+        fetchedAt: latestLog.fetchedAt,
+        condition:
+          typeof forecastObj.condition === "string"
+            ? forecastObj.condition
+            : "Partly Cloudy",
+        advisory:
+          typeof forecastObj.advisory === "string"
+            ? forecastObj.advisory
+            : "Showing cached weather data (offline fallback).",
+      };
+    }
   }
 
-  // 5. Ultimate fallback if field has no records at all
-  return {
+  // 5. Ultimate baseline forecast for NORMAL scenario: clear & favorable
+  const normalSummary: WeatherForecastSummary = {
     fieldId: field.id,
-    rainProbability6h: 20.0,
-    rainMm48h: 1.5,
-    tempMax: 30.0,
-    hourly: [],
+    rainProbability6h: 15.0,
+    rainMm48h: 1.0,
+    tempMax: 28.5,
+    hourly: [
+      {
+        time: new Date(now.getTime() + 1 * 3600 * 1000).toISOString(),
+        temp: 26,
+        rainProbability: 10,
+        rainMm: 0,
+        condition: "Sunny",
+      },
+      {
+        time: new Date(now.getTime() + 3 * 3600 * 1000).toISOString(),
+        temp: 28.5,
+        rainProbability: 15,
+        rainMm: 0,
+        condition: "Clear",
+      },
+      {
+        time: new Date(now.getTime() + 6 * 3600 * 1000).toISOString(),
+        temp: 27,
+        rainProbability: 15,
+        rainMm: 0,
+        condition: "Clear",
+      },
+    ],
     riskBadges: ["Clear"],
-    source: "openweathermap",
-    stale: true,
+    source: "demo_scenario",
+    stale: false,
     fetchedAt: now,
-    condition: "Sunny / Clear",
-    advisory: "Default simulated reading (no cached weather log available).",
+    condition: "Favorable Clear Weather",
+    advisory: "Favorable dry weather window for crop maintenance and agricultural spraying.",
   };
+
+  try {
+    await prisma.weatherLog.create({
+      data: {
+        fieldId: field.id,
+        rainProbability6h: normalSummary.rainProbability6h,
+        rainMm48h: normalSummary.rainMm48h,
+        tempMax: normalSummary.tempMax,
+        fetchedAt: now,
+        forecast: {
+          source: normalSummary.source,
+          scenario: "NORMAL",
+          condition: normalSummary.condition,
+          advisory: normalSummary.advisory,
+          riskBadges: normalSummary.riskBadges,
+          hourly: normalSummary.hourly,
+        } as unknown as Prisma.InputJsonValue,
+      },
+    });
+  } catch (saveErr) {
+    console.error("Failed to store WeatherLog for NORMAL fallback:", saveErr);
+  }
+
+  return normalSummary;
 }

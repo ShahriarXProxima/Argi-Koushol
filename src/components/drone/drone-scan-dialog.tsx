@@ -211,6 +211,9 @@ export function DroneScanDialog({ defaultFieldId, trigger }: DroneScanDialogProp
       setStep("NOTIFIED");
 
       setResultData(data?.data || data);
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("agri-alert-created"));
+      }
       toast.success("Autonomous Drone Scan & Pipeline Completed!");
       router.refresh();
     } catch (err: unknown) {

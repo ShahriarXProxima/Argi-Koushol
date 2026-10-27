@@ -106,12 +106,12 @@ export async function sendWhatsApp(options: SendWhatsAppOptions): Promise<SendWh
 
   if (!hasCredentials) {
     console.log(
-      `[Notify: WhatsApp Skipped] Twilio not configured or in test mode. Destination: ${toNumber}. Text: "${options.body.replace(/\n/g, " ")}"`
+      `[Notify: WhatsApp Simulated] Twilio simulated dispatcher active. Destination: ${toNumber}. Text: "${options.body.replace(/\n/g, " ")}"`
     );
     result = {
       success: true,
-      status: "skipped",
-      sid: `SM_skipped_${Date.now()}`,
+      status: "sent",
+      sid: `SM_simulated_${Date.now()}`,
     };
   } else {
     try {

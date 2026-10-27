@@ -144,8 +144,10 @@ export function ChatWidget() {
     loadHistory();
   }, [sessionId, activeSessionId, language]);
 
-  // 3. Proactive Alert Listener (Polls every 10 seconds)
+  // 3. Proactive Alert Listener (Immediate + Polls every 4 seconds + Event Listener)
   React.useEffect(() => {
+    let isInitial = true;
+
     const checkAlerts = async () => {
       try {
         const res = await fetch("/api/alerts?unreadOnly=true");
@@ -154,6 +156,15 @@ export function ChatWidget() {
         const unreadAlerts: RawAlertItem[] = json?.data?.alerts || json?.alerts || [];
 
         if (Array.isArray(unreadAlerts) && unreadAlerts.length > 0) {
+          if (isInitial && seenAlertIdsRef.current.size === 0) {
+            // Seed seen alerts so historical alerts don't spam the chat on fresh page load
+            for (const a of unreadAlerts) {
+              seenAlertIdsRef.current.add(a.id);
+            }
+            isInitial = false;
+            return;
+          }
+
           const newAlerts = unreadAlerts.filter(
             (a) => !seenAlertIdsRef.current.has(a.id)
           );
@@ -182,13 +193,24 @@ export function ChatWidget() {
             }
           }
         }
+        isInitial = false;
       } catch {
         // Ignore polling errors
       }
     };
 
-    const interval = setInterval(checkAlerts, 10000);
-    return () => clearInterval(interval);
+    checkAlerts();
+    const interval = setInterval(checkAlerts, 3000);
+
+    const onAlertEvent = () => {
+      checkAlerts();
+    };
+    window.addEventListener("agri-alert-created", onAlertEvent);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("agri-alert-created", onAlertEvent);
+    };
   }, [isOpen]);
 
   // Scroll to bottom on message updates
