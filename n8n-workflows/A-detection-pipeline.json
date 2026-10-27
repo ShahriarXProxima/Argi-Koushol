@@ -1,0 +1,330 @@
+{
+  "name": "Agri-Koushol - A. Crop Guardian Detection Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "agri-detect",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a0f7c22e-1e24-4f46-86c4-1a98075f8501",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        180,
+        300
+      ],
+      "webhookId": "a0f7c22e-1e24-4f46-86c4-1a98075f8501",
+      "credentials": {
+        "headerAuth": {
+          "id": "HEADER_AUTH_CREDENTIALS_ID",
+          "name": "Agri-Koushol Shared Secret (x-shared-secret)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-disease-label",
+              "leftValue": "={{ ($json.body && $json.body.label) ? $json.body.label.toLowerCase() : ($json.label ? $json.label.toLowerCase() : '') }}",
+              "rightValue": "healthy",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "cond-confidence-threshold",
+              "leftValue": "={{ Number(($json.body && $json.body.confidence !== undefined) ? $json.body.confidence : $json.confidence) }}",
+              "rightValue": 0.6,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "b1e6e584-3b47-4f69-a1b7-951b1f868212",
+      "name": "Filter Disease",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        420,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  status: 'no_action',\n  reason: 'Crop canopy is healthy or detection confidence is below 60% threshold.',\n  detection: $('Webhook').item.json.body || $('Webhook').item.json,\n  timestamp: new Date().toISOString()\n} }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "c2d7f890-4c58-4a7b-b2c8-862c2f979323",
+      "name": "Respond No Action",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        680,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ ($env.APP_URL || 'http://host.docker.internal:3000') }}/api/fields/{{ $('Webhook').item.json.body ? $('Webhook').item.json.body.fieldId : $('Webhook').item.json.fieldId }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $env.INGEST_API_KEY || 'dev-ingest-key' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d3e8a901-5d69-4b8c-c3d9-973d3a08a434",
+      "name": "GET Field Details",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        680,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ ($env.APP_URL || 'http://host.docker.internal:3000') }}/api/weather/{{ $('Webhook').item.json.body ? $('Webhook').item.json.body.fieldId : $('Webhook').item.json.fieldId }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $env.INGEST_API_KEY || 'dev-ingest-key' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e4f9b012-6e7a-4c9d-d4ea-084e4b19b545",
+      "name": "GET Weather",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        920,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ ($env.APP_URL || 'http://host.docker.internal:3000') }}/api/decide",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "x-api-key",
+              "value": "={{ $env.INGEST_API_KEY || 'dev-ingest-key' }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  fieldId: $('Webhook').item.json.body ? $('Webhook').item.json.body.fieldId : $('Webhook').item.json.fieldId,\n  detectionId: $('Webhook').item.json.body ? $('Webhook').item.json.body.detectionId : $('Webhook').item.json.detectionId\n}) }}",
+        "options": {}
+      },
+      "id": "f5a0c123-7f8b-4dae-e5fb-195f5c2ac656",
+      "name": "POST Decide",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1160,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ ($env.APP_URL || 'http://host.docker.internal:3000') }}/api/decisions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "x-api-key",
+              "value": "={{ $env.INGEST_API_KEY || 'dev-ingest-key' }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  fieldId: $('Webhook').item.json.body ? $('Webhook').item.json.body.fieldId : $('Webhook').item.json.fieldId,\n  detectionId: $('Webhook').item.json.body ? $('Webhook').item.json.body.detectionId : $('Webhook').item.json.detectionId,\n  action: $json.decision.decision,\n  reasoning: $json.decision.reasoning,\n  scheduledFor: $json.decision.rescheduleTimeIso,\n  severity: $json.decision.severity,\n  farmerMessage: $json.decision.farmerMessage,\n  farmerMessageBn: $json.decision.farmerMessageBn,\n  source: 'N8N',\n  simulated: true\n}) }}",
+        "options": {}
+      },
+      "id": "06b1d234-809c-4ebf-f60c-2a606d3bd767",
+      "name": "POST Decisions",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1400,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "from": "={{ $env.TWILIO_WHATSAPP_FROM || 'whatsapp:+14155238886' }}",
+        "to": "={{ $env.FARMER_WHATSAPP_TO || 'whatsapp:+8801700000000' }}",
+        "message": "={{ '🌾 [Agri-Koushol Autonomous Decision]\\n\\n' + $('POST Decide').item.json.decision.farmerMessage + '\\n\\n' + $('POST Decide').item.json.decision.farmerMessageBn + '\\n\\nReasoning: ' + $('POST Decide').item.json.decision.reasoning }}"
+      },
+      "id": "17c2e345-91ad-4fc0-071d-3b717e4ce878",
+      "name": "Send WhatsApp (Twilio)",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [
+        1640,
+        180
+      ],
+      "credentials": {
+        "twilioApi": {
+          "id": "TWILIO_CREDENTIALS_ID",
+          "name": "Twilio account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  status: 'success',\n  decision: $('POST Decisions').item.json.decision,\n  alert: $('POST Decisions').item.json.alert,\n  whatsappDispatched: true,\n  timestamp: new Date().toISOString()\n} }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "28d3f456-a2be-40d1-182e-4c828f5df989",
+      "name": "Respond Webhook Decision",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1880,
+        180
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Filter Disease",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Disease": {
+      "main": [
+        [
+          {
+            "node": "GET Field Details",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond No Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Field Details": {
+      "main": [
+        [
+          {
+            "node": "GET Weather",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Weather": {
+      "main": [
+        [
+          {
+            "node": "POST Decide",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST Decide": {
+      "main": [
+        [
+          {
+            "node": "POST Decisions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST Decisions": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp (Twilio)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send WhatsApp (Twilio)": {
+      "main": [
+        [
+          {
+            "node": "Respond Webhook Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "id": "agri-koushol",
+      "name": "Agri-Koushol"
+    }
+  ]
+}

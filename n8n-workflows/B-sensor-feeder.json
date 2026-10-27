@@ -1,0 +1,223 @@
+{
+  "name": "Agri-Koushol - B. Sensor Feeder & Soil Telemetry Simulator",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 1
+            }
+          ]
+        }
+      },
+      "id": "e1a2b3c4-0001-4000-8000-000000000001",
+      "name": "Schedule Trigger (Every 1m)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        180,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Define target agricultural fields with agronomic thresholds\nconst fields = [\n  { id: 'cmvpap35100019ep849ii6yh8', name: 'Field A (Sector 1)', crop: 'Boro Rice (BRRI dhan28)', threshold: 35 },\n  { id: 'cmvpap35100029ep8d89s89sd', name: 'Field B (Sector 2)', crop: 'Wheat (BARI Gom-33)', threshold: 30 },\n  { id: 'cmvpap35100039ep8k1928374', name: 'Field C (Sector 3)', crop: 'Mustard (BARI Sarisha-14)', threshold: 28 },\n  { id: 'cmvpap4sa00049ep8h1tm3ow6', name: 'Field D (Sector 4)', crop: 'Potato (Diamant)', threshold: 40 }\n];\n\nconst now = new Date();\nconst currentHour = now.getHours() + now.getMinutes() / 60;\n\n// Diurnal Solar Cycle (24h sinusoid: peak warmth at 14:00, coolest at 05:00)\nconst solarCycle = Math.sin(((currentHour - 8) * Math.PI) / 12);\n\n// Base diurnal temperature (coolest 22°C at dawn, warmest 33°C in early afternoon)\nconst baseTemp = 27.5 + 5.5 * solarCycle;\n// Inverse diurnal relative humidity (drier 48% at afternoon peak, humid 88% at dawn)\nconst baseHumidity = 68 - 18 * solarCycle;\n\nconst items = [];\n\nfor (const field of fields) {\n  const tempJitter = (Math.random() - 0.5) * 1.5;\n  const humJitter = (Math.random() - 0.5) * 4.0;\n  \n  const temperature = Math.round((baseTemp + tempJitter) * 10) / 10;\n  const humidity = Math.min(100, Math.max(20, Math.round((baseHumidity + humJitter) * 10) / 10));\n\n  // Soil moisture random-walk in range 20% - 60%\n  // Daytime evaporation decreases moisture slightly\n  const evapFactor = solarCycle > 0 ? solarCycle * 2.5 : 0;\n  const baseMoisture = field.threshold + (Math.random() * 14 - 5) - evapFactor;\n  const soilMoisture = Math.min(60, Math.max(20, Math.round(baseMoisture * 10) / 10));\n\n  // Soil pH: slightly acidic to neutral alluvial soil (6.10 - 6.90)\n  const ph = Math.round((6.5 + (Math.random() - 0.5) * 0.4) * 100) / 100;\n\n  items.push({\n    json: {\n      fieldId: field.id,\n      fieldName: field.name,\n      crop: field.crop,\n      threshold: field.threshold,\n      soilMoisture,\n      temperature,\n      humidity,\n      ph,\n      isBelowThreshold: soilMoisture < field.threshold,\n      recordedAt: now.toISOString()\n    }\n  });\n}\n\nreturn items;"
+      },
+      "id": "e1a2b3c4-0002-4000-8000-000000000002",
+      "name": "Simulate Sensor Readings",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        420,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ ($env.APP_URL || 'http://host.docker.internal:3000') }}/api/sensors",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "x-api-key",
+              "value": "={{ $env.INGEST_API_KEY || 'dev-ingest-key' }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  fieldId: $json.fieldId,\n  soilMoisture: $json.soilMoisture,\n  temperature: $json.temperature,\n  humidity: $json.humidity,\n  ph: $json.ph,\n  recordedAt: $json.recordedAt\n}) }}",
+        "options": {}
+      },
+      "id": "e1a2b3c4-0003-4000-8000-000000000003",
+      "name": "POST Sensor Telemetry",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        680,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-moisture-threshold",
+              "leftValue": "={{ Number($json.soilMoisture) }}",
+              "rightValue": "={{ Number($json.threshold) }}",
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "e1a2b3c4-0004-4000-8000-000000000004",
+      "name": "Check Low Moisture",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        680,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ ($env.APP_URL || 'http://host.docker.internal:3000') }}/api/decide",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "x-api-key",
+              "value": "={{ $env.INGEST_API_KEY || 'dev-ingest-key' }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  fieldId: $json.fieldId,\n  context: 'Low moisture telemetry detected: Soil moisture at ' + $json.soilMoisture + '% is below the irrigation threshold of ' + $json.threshold + '% for ' + $json.crop + '. Evaluate irrigation requirement.'\n}) }}",
+        "options": {}
+      },
+      "id": "e1a2b3c4-0005-4000-8000-000000000005",
+      "name": "POST Decide (Low Moisture)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        920,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ ($env.APP_URL || 'http://host.docker.internal:3000') }}/api/decisions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "x-api-key",
+              "value": "={{ $env.INGEST_API_KEY || 'dev-ingest-key' }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  fieldId: $('Check Low Moisture').item.json.fieldId,\n  action: $json.decision.decision || 'IRRIGATE',\n  reasoning: $json.decision.reasoning || ('Soil moisture has dropped below threshold (' + $('Check Low Moisture').item.json.soilMoisture + '% < ' + $('Check Low Moisture').item.json.threshold + '%). Initiating autonomous irrigation.'),\n  scheduledFor: $json.decision.rescheduleTimeIso,\n  severity: $json.decision.severity || 'HIGH',\n  farmerMessage: $json.decision.farmerMessage || ($('Check Low Moisture').item.json.fieldName + ': Low soil moisture (' + $('Check Low Moisture').item.json.soilMoisture + '%). Irrigation activated.'),\n  farmerMessageBn: $json.decision.farmerMessageBn || ($('Check Low Moisture').item.json.fieldName + ': মাটির আর্দ্রতা কমে গেছে (' + $('Check Low Moisture').item.json.soilMoisture + '%)। স্বয়ংক্রিয় সেচ চালু করা হয়েছে।'),\n  source: 'N8N',\n  simulated: true\n}) }}",
+        "options": {}
+      },
+      "id": "e1a2b3c4-0006-4000-8000-000000000006",
+      "name": "POST Decisions (Irrigation)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1160,
+        420
+      ]
+    }
+  ],
+  "connections": {
+    "Schedule Trigger (Every 1m)": {
+      "main": [
+        [
+          {
+            "node": "Simulate Sensor Readings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simulate Sensor Readings": {
+      "main": [
+        [
+          {
+            "node": "POST Sensor Telemetry",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check Low Moisture",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Low Moisture": {
+      "main": [
+        [
+          {
+            "node": "POST Decide (Low Moisture)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST Decide (Low Moisture)": {
+      "main": [
+        [
+          {
+            "node": "POST Decisions (Irrigation)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "id": "agri-koushol",
+      "name": "Agri-Koushol"
+    }
+  ]
+}
