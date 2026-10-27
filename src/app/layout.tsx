@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppShell } from "@/components/app-shell";
 import { Toaster } from "@/components/ui/sonner";
+import { I18nProvider } from "@/lib/i18n";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -44,8 +45,10 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <TooltipProvider delay={200}>
-            <AppShell>{children}</AppShell>
-            <Toaster richColors position="top-right" />
+            <I18nProvider>
+              <AppShell>{children}</AppShell>
+              <Toaster richColors position="top-right" />
+            </I18nProvider>
           </TooltipProvider>
         </ThemeProvider>
       </body>

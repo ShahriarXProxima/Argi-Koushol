@@ -1,14 +1,25 @@
+"use client";
+
 import * as React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 interface SimulatedBadgeProps {
   className?: string;
   label?: string;
 }
 
-export function SimulatedBadge({ className, label = "Simulated" }: SimulatedBadgeProps) {
+export function SimulatedBadge({ className, label }: SimulatedBadgeProps) {
+  const { isBangla } = useI18n();
+
+  const defaultLabel = isBangla ? "সিমুলেটেড" : "Simulated";
+  let displayLabel = label || defaultLabel;
+  if (label === "Simulated" && isBangla) {
+    displayLabel = "সিমুলেটেড";
+  }
+
   return (
     <Badge
       variant="outline"
@@ -18,7 +29,7 @@ export function SimulatedBadge({ className, label = "Simulated" }: SimulatedBadg
       )}
     >
       <Sparkles className="size-2.5 text-amber-600 dark:text-amber-400" />
-      <span>{label}</span>
+      <span>{displayLabel}</span>
     </Badge>
   );
 }

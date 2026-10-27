@@ -55,13 +55,16 @@ export function ChatHeader({
         <div className="min-w-0">
           <div className="flex items-center gap-1.5">
             <h3 className="font-semibold text-sm tracking-tight truncate font-bengali">
-              শস্য-প্রহরী
+              {language === "bn" ? "শস্য-প্রহরী" : "Shoshsho-Prohori"}
             </h3>
-            <span className="flex size-2 rounded-full bg-emerald-500 animate-pulse" title="Online" />
+            <span
+              className="flex size-2 rounded-full bg-emerald-500 animate-pulse"
+              title={language === "bn" ? "সক্রিয়" : "Online"}
+            />
           </div>
           <p className="text-[11px] text-muted-foreground truncate flex items-center gap-1">
             <Sparkles className="size-2.5 text-amber-500" />
-            <span>AI Agronomist</span>
+            <span>{language === "bn" ? "AI কৃষি সহকারী" : "AI Agronomist"}</span>
           </p>
         </div>
       </div>

@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import type { AlertWithDetails } from "@/lib/data/alerts";
+import { useI18n } from "@/lib/i18n";
 
 interface AlertsClientProps {
   initialAlerts: AlertWithDetails[];
@@ -96,6 +97,7 @@ function formatRelativeTime(dateStr: Date | string) {
 }
 
 export function AlertsClient({ initialAlerts, fields }: AlertsClientProps) {
+  const { isBangla, t } = useI18n();
   const [alerts, setAlerts] = React.useState<AlertWithDetails[]>(initialAlerts);
   const [searchQuery, setSearchQuery] = React.useState("");
   const [severityFilter, setSeverityFilter] = React.useState<string>("ALL");
@@ -347,7 +349,7 @@ export function AlertsClient({ initialAlerts, fields }: AlertsClientProps) {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
             <Input
               type="text"
-              placeholder="সতর্কবার্তা, ফসল বা সিদ্ধান্ত খুঁজুন (Search alerts, fields, actions)..."
+              placeholder={t("alerts.searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9 pr-9 h-10 rounded-xl text-xs bg-background"
@@ -384,7 +386,7 @@ export function AlertsClient({ initialAlerts, fields }: AlertsClientProps) {
               className="h-10 rounded-xl gap-2 text-xs font-semibold border-primary/30 hover:bg-primary/10 text-primary cursor-pointer"
             >
               <CheckCheck className="size-4" />
-              <span>সব পড়া চিহ্নিত করুন ({unreadCount})</span>
+              <span>{t("alerts.markAllRead")} ({unreadCount})</span>
             </Button>
           </div>
         </div>
@@ -461,19 +463,21 @@ export function AlertsClient({ initialAlerts, fields }: AlertsClientProps) {
               <ShieldCheck className="size-6 text-primary" />
             </div>
             <h3 className="text-base font-semibold text-foreground">
-              কোনো সতর্কবার্তা মেলেনি
+              {t("alerts.noAlerts")}
             </h3>
             <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-              আপনার নির্বাচিত ফিল্টারের সাথে মিলে এমন কোনো সতর্কতা খুঁজে পাওয়া যায়নি।
+              {isBangla
+                ? "আপনার নির্বাচিত ফিল্টারের সাথে মিলে এমন কোনো সতর্কতা খুঁজে পাওয়া যায়নি।"
+                : "No alerts match the currently selected filter options."}
             </p>
             {isAnyFilterActive && (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={resetFilters}
-                className="rounded-xl h-8 text-xs"
+                className="rounded-xl h-8 text-xs cursor-pointer"
               >
-                ফিল্টার রিসেট করুন
+                {t("alerts.resetFilters")}
               </Button>
             )}
           </div>
@@ -519,7 +523,7 @@ export function AlertsClient({ initialAlerts, fields }: AlertsClientProps) {
                       </div>
 
                       <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                        {item.messageBn || item.message}
+                        {isBangla ? (item.messageBn || item.message) : (item.message || item.messageBn)}
                       </p>
 
                       <div className="flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground pt-0.5">

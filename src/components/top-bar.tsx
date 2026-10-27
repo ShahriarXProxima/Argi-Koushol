@@ -8,10 +8,12 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { LanguageToggle } from "@/components/language-toggle";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { useI18n } from "@/lib/i18n";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export function TopBar() {
+  const { isBangla, t } = useI18n();
   const { data } = useSWR<{ count: number }>(
     "/api/alerts?unreadOnly=true",
     fetcher,
@@ -19,6 +21,7 @@ export function TopBar() {
   );
 
   const unreadCount = data?.count ?? 0;
+
   return (
     <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-border/70 bg-background/90 px-4 backdrop-blur-md md:px-6">
       {/* Brand / Title for mobile & farmer context */}
@@ -31,8 +34,12 @@ export function TopBar() {
             <Leaf className="size-5" />
           </div>
           <div className="flex flex-col">
-            <span className="text-sm font-bold tracking-tight text-primary">কৃষি কৌশল</span>
-            <span className="text-[10px] text-muted-foreground -mt-0.5 font-medium">Agri-Koushol</span>
+            <span className="text-sm font-bold tracking-tight text-primary">
+              {t("app.title")}
+            </span>
+            <span className="text-[10px] text-muted-foreground -mt-0.5 font-medium">
+              {t("app.subtitle")}
+            </span>
           </div>
         </Link>
 
@@ -40,21 +47,21 @@ export function TopBar() {
         <div className="hidden items-center gap-3 md:flex">
           <Avatar className="size-9 rounded-xl border border-primary/20 bg-secondary/80">
             <AvatarFallback className="rounded-xl bg-primary/10 text-xs font-bold text-primary">
-              RI
+              {isBangla ? "র" : "RI"}
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-col leading-tight">
             <div className="flex items-center gap-2">
               <span className="text-sm font-semibold text-foreground">
-                মোঃ রফিকুল ইসলাম
+                {t("topbar.farmerName")}
               </span>
               <span className="text-xs text-muted-foreground font-medium">
-                (Rafiqul Islam)
+                {isBangla ? "(Rafiqul Islam)" : "(রফিকুল ইসলাম)"}
               </span>
             </div>
             <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
               <MapPin className="size-3 text-primary/80" />
-              <span>ময়মনসিংহ খামার #৪ • ধান ও সরিষা</span>
+              <span>{t("topbar.farmerLocation")}</span>
             </div>
           </div>
         </div>
@@ -66,7 +73,7 @@ export function TopBar() {
         <div className="flex items-center gap-1.5 md:hidden pr-1">
           <Avatar className="size-8 rounded-lg border border-primary/20 bg-secondary/80">
             <AvatarFallback className="rounded-lg bg-primary/10 text-[11px] font-bold text-primary">
-              র
+              {isBangla ? "র" : "RI"}
             </AvatarFallback>
           </Avatar>
         </div>
@@ -75,11 +82,11 @@ export function TopBar() {
         <LanguageToggle />
 
         {/* Alert Bell with unread counter */}
-        <Link href="/alerts" aria-label="View farm alerts">
+        <Link href="/alerts" aria-label={t("topbar.alerts")}>
           <Button
             variant="ghost"
             size="icon"
-            className="relative size-9 rounded-xl border border-border/60 hover:bg-secondary/80 text-foreground transition-colors"
+            className="relative size-9 rounded-xl border border-border/60 hover:bg-secondary/80 text-foreground transition-colors cursor-pointer"
           >
             <Bell className="size-4.5" />
             {unreadCount > 0 && (
@@ -88,7 +95,7 @@ export function TopBar() {
               </span>
             )}
             <span className="sr-only">
-              {unreadCount > 0 ? `${unreadCount} unread farm alerts` : "Farm alerts"}
+              {unreadCount > 0 ? `${unreadCount} ${t("topbar.unreadAlerts")}` : t("topbar.alerts")}
             </span>
           </Button>
         </Link>

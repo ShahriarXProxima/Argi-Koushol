@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { getOrFetchWeather, type WeatherForecastSummary } from "@/lib/weather";
 import { recomputeFieldYieldPrediction } from "@/lib/data/yield";
-import { sendWhatsAppAlert } from "@/lib/twilio";
+import { sendWhatsApp, formatFarmerWhatsAppMessage } from "@/lib/notify";
 import type { Decision, Alert, YieldPrediction } from "@prisma/client";
 
 export interface PipelineDetectionInput {
@@ -168,15 +168,19 @@ export async function runLocalPipeline(detection: PipelineDetectionInput): Promi
     console.warn(`[Pipeline] Yield recomputation warning for Field '${field.id}':`, err);
   }
 
-  // Step 5: Send WhatsApp Notification
+  // Step 5: Send WhatsApp Notification (Short farmer format: field, problem, decision, new time, link)
   try {
-    const waResult = await sendWhatsAppAlert({
-      body: `🌾 [Agri-Koushol সতর্কতা]\n${farmerMessageBn}\n\nEnglish: ${farmerMessageEn}\n\nStatus: ${decisionAction}`,
+    const waBody = formatFarmerWhatsAppMessage({
+      fieldName: field.name,
+      problem: detection.label,
+      decision: decisionAction,
+      newTimeIso: rescheduleTimeIso,
+      dashboardUrl: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/fields/${field.id}`,
     });
 
-    await prisma.alert.update({
-      where: { id: alert.id },
-      data: { whatsappStatus: waResult.status },
+    const waResult = await sendWhatsApp({
+      body: waBody,
+      alertId: alert.id,
     });
     alert.whatsappStatus = waResult.status;
   } catch (err) {

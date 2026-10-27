@@ -29,6 +29,7 @@ import { DroneScanDialog } from "@/components/drone/drone-scan-dialog";
 import { toast } from "sonner";
 import type { FieldWithDetails } from "@/lib/data/fields";
 import type { SensorReading, Decision } from "@prisma/client";
+import { useI18n } from "@/lib/i18n";
 
 interface FieldDetailClientProps {
   field: FieldWithDetails;
@@ -37,6 +38,8 @@ interface FieldDetailClientProps {
 }
 
 export function FieldDetailClient({ field, readings, decisions }: FieldDetailClientProps) {
+  const { isBangla, t } = useI18n();
+
   // 1. Calculate growth stage progress using state initializer to preserve purity
   const [now] = React.useState(() => Date.now());
   const plantedDate = new Date(field.plantedOn);
@@ -50,16 +53,16 @@ export function FieldDetailClient({ field, readings, decisions }: FieldDetailCli
   const hasFlaggedDetections = field.detections.some((d) => d.status === "FLAGGED");
   
   let healthVariant: "healthy" | "watch" | "alert" = "healthy";
-  let healthLabel = "সুস্থ (Optimal)";
+  let healthLabel = isBangla ? "সুস্থ (Optimal)" : "Optimal / Healthy";
   let healthClass = "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30";
 
   if (hasFlaggedDetections) {
     healthVariant = "alert";
-    healthLabel = "রোগাক্রান্ত / জরুরি (Alert)";
+    healthLabel = isBangla ? "রোগাক্রান্ত / জরুরি (Alert)" : "Disease Alert";
     healthClass = "bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/30";
   } else if (isMoistureDry) {
     healthVariant = "watch";
-    healthLabel = "সেচ প্রয়োজন (Irrigation Watch)";
+    healthLabel = isBangla ? "সেচ প্রয়োজন (Watch)" : "Irrigation Watch";
     healthClass = "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30";
   }
 
@@ -189,7 +192,7 @@ export function FieldDetailClient({ field, readings, decisions }: FieldDetailCli
                   className="rounded-xl h-11 px-5 bg-gradient-to-r from-emerald-600 to-teal-700 text-white font-semibold shadow-sm hover:shadow transition-all hover:from-emerald-700 hover:to-teal-800 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Plane className="size-4" />
-                  <span>ড্রোন স্ক্যান সিমুলেট (Simulate Scan)</span>
+                  <span>{t("fields.simulateDrone")}</span>
                 </Button>
               }
             />
@@ -199,7 +202,7 @@ export function FieldDetailClient({ field, readings, decisions }: FieldDetailCli
               className="rounded-xl h-11 px-5 font-semibold shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer group"
             >
               <MessageSquareText className="size-4 group-hover:scale-110 transition-transform text-primary" />
-              <span>এই জমি নিয়ে শস্য-প্রহরীকে জিজ্ঞাসা করুন</span>
+              <span>{t("fields.askShoshsho")}</span>
             </Button>
             <div className="text-[11px] text-muted-foreground text-center lg:text-right">
               AI সহায়ক আবহাওয়া, বালাই ও সেচ ব্যবস্থাপনা ব্যাখ্যা করবে
@@ -212,17 +215,17 @@ export function FieldDetailClient({ field, readings, decisions }: FieldDetailCli
       <div className="md:hidden">
         <Tabs defaultValue="charts" className="w-full">
           <TabsList className="grid w-full grid-cols-3 rounded-xl p-1 bg-muted/70 mb-4 h-11">
-            <TabsTrigger value="charts" className="rounded-lg text-xs font-semibold gap-1.5">
+            <TabsTrigger value="charts" className="rounded-lg text-xs font-semibold gap-1.5 truncate">
               <BarChart2 className="size-3.5" />
-              চার্ট ও সেন্সর
+              <span>{isBangla ? "চার্ট ও সেন্সর" : "Charts"}</span>
             </TabsTrigger>
-            <TabsTrigger value="detections" className="rounded-lg text-xs font-semibold gap-1.5">
+            <TabsTrigger value="detections" className="rounded-lg text-xs font-semibold gap-1.5 truncate">
               <Bug className="size-3.5" />
-              শনাক্তকরণ ({field.detections.length})
+              <span>{isBangla ? "শনাক্তকরণ" : "Detections"} ({field.detections.length})</span>
             </TabsTrigger>
-            <TabsTrigger value="decisions" className="rounded-lg text-xs font-semibold gap-1.5">
+            <TabsTrigger value="decisions" className="rounded-lg text-xs font-semibold gap-1.5 truncate">
               <History className="size-3.5" />
-              টাইমলাইন ({decisions.length})
+              <span>{isBangla ? "টাইমলাইন" : "Decisions"} ({decisions.length})</span>
             </TabsTrigger>
           </TabsList>
 

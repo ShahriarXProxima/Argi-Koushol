@@ -15,9 +15,9 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import type { LLMToolCall } from "@/lib/llm";
+import { useI18n } from "@/lib/i18n";
 
 const SESSION_STORAGE_KEY = "agri_koushol_chat_session_id";
-const LANGUAGE_STORAGE_KEY = "agri_koushol_chat_language";
 
 interface RawFieldItem {
   id: string;
@@ -53,12 +53,6 @@ function getSessionIdSnapshot(): string {
   return sid;
 }
 
-function getLanguageSnapshot(): "en" | "bn" {
-  if (typeof window === "undefined") return "bn";
-  const saved = localStorage.getItem(LANGUAGE_STORAGE_KEY);
-  return saved === "en" ? "en" : "bn";
-}
-
 export function ChatWidget() {
   const [isOpen, setIsOpen] = React.useState(false);
   const [hasUnread, setHasUnread] = React.useState(false);
@@ -70,15 +64,9 @@ export function ChatWidget() {
     () => ""
   );
 
-  const initialLang = React.useSyncExternalStore(
-    emptySubscribe,
-    getLanguageSnapshot,
-    () => "bn" as const
-  );
-
   const [overrideSessionId, setOverrideSessionId] = React.useState<string | null>(null);
   const sessionId = overrideSessionId || activeSessionId;
-  const [language, setLanguage] = React.useState<"en" | "bn">(initialLang);
+  const { locale: language, toggleLocale: handleToggleLanguage } = useI18n();
   const [fields, setFields] = React.useState<FieldOption[]>([]);
   const [selectedFieldId, setSelectedFieldId] = React.useState<string>("all");
 
@@ -207,15 +195,6 @@ export function ChatWidget() {
   React.useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, streamingContent, isStreaming]);
-
-  // Language toggle handler
-  const handleToggleLanguage = () => {
-    const newLang = language === "en" ? "bn" : "en";
-    setLanguage(newLang);
-    if (typeof window !== "undefined") {
-      localStorage.setItem(LANGUAGE_STORAGE_KEY, newLang);
-    }
-  };
 
   // Clear chat conversation
   const handleClearChat = async () => {

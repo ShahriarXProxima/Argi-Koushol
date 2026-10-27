@@ -18,6 +18,7 @@ import {
   Radio,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useI18n } from "@/lib/i18n";
 
 interface AlertItem {
   id: string;
@@ -95,6 +96,8 @@ interface LiveAlertFeedProps {
 }
 
 export function LiveAlertFeed({ initialAlerts = [] }: LiveAlertFeedProps) {
+  const { isBangla, t } = useI18n();
+
   // SWR polling every 5 seconds as specified
   const { data, mutate } = useSWR<AlertFeedResponse>(
     "/api/alerts?limit=8",
@@ -132,9 +135,9 @@ export function LiveAlertFeed({ initialAlerts = [] }: LiveAlertFeedProps) {
       });
 
       if (!res.ok) throw new Error("Failed to update alert");
-      toast.success("সতর্কবার্তা পঠিত হিসেবে চিহ্নিত করা হয়েছে।");
+      toast.success(isBangla ? "সতর্কবার্তা পঠিত চিহ্নিত করা হয়েছে।" : "Alert marked as read.");
     } catch {
-      toast.error("সতর্কবার্তা আপডেট করা যায়নি।");
+      toast.error(isBangla ? "সতর্কবার্তা আপডেট করা যায়নি।" : "Failed to update alert.");
       mutate();
     }
   };
@@ -149,20 +152,20 @@ export function LiveAlertFeed({ initialAlerts = [] }: LiveAlertFeedProps) {
             </div>
             <div>
               <CardTitle className="text-base font-bold flex items-center gap-2">
-                <span>লাইভ সতর্কবার্তা</span>
+                <span>{t("feed.title")}</span>
                 {unreadCount > 0 ? (
                   <span className="flex size-2 rounded-full bg-destructive animate-pulse" />
                 ) : null}
               </CardTitle>
               <CardDescription className="text-xs">
-                Live Alert Feed • SWR Polling (৫ সেকেন্ড)
+                {t("feed.subtitle")} • SWR Polling (5s)
               </CardDescription>
             </div>
           </div>
 
           <Badge variant="outline" className="text-[11px] gap-1 px-2 py-0.5 font-medium">
             <Radio className="size-2.5 text-emerald-500 animate-pulse" />
-            <span>{unreadCount} সক্রিয়</span>
+            <span>{unreadCount} {t("common.active")}</span>
           </Badge>
         </div>
       </CardHeader>
@@ -174,10 +177,10 @@ export function LiveAlertFeed({ initialAlerts = [] }: LiveAlertFeedProps) {
               <ShieldCheck className="size-6" />
             </div>
             <p className="text-sm font-semibold text-foreground">
-              কোনো নতুন সতর্কতা নেই
+              {isBangla ? "কোনো নতুন সতর্কতা নেই" : "No new alerts"}
             </p>
             <p className="text-xs text-muted-foreground max-w-[200px]">
-              সবগুলো খামার জোন স্বাভাবিক ও নিরাপদ অবস্থায় রয়েছে।
+              {t("feed.allSafe")}
             </p>
           </div>
         ) : (
@@ -232,7 +235,7 @@ export function LiveAlertFeed({ initialAlerts = [] }: LiveAlertFeedProps) {
                     {alert.title}
                   </h4>
                   <p className="text-[11px] text-muted-foreground leading-relaxed line-clamp-2">
-                    {alert.messageBn || alert.message}
+                    {isBangla ? (alert.messageBn || alert.message) : (alert.message || alert.messageBn)}
                   </p>
                 </div>
 

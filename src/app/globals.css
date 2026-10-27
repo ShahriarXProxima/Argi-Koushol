@@ -158,3 +158,35 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
+
+/* Noto Sans Bengali Typography Rules */
+html[lang="bn"],
+[data-locale="bn"] {
+  font-family: var(--font-bengali), var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.6;
+}
+
+[data-locale="bn"] body {
+  font-size: 15px;
+}
+
+/* Ensure Bengali text has comfortable vertical room for matras and vowels without clipping */
+.font-bengali,
+[data-locale="bn"] h1,
+[data-locale="bn"] h2,
+[data-locale="bn"] h3,
+[data-locale="bn"] h4,
+[data-locale="bn"] p,
+[data-locale="bn"] span,
+[data-locale="bn"] button,
+[data-locale="bn"] label {
+  line-height: 1.55;
+}
+
+/* Mobile-first safeguard: prevent horizontal scroll and awkward label wrapping at 390px */
+@media (max-width: 420px) {
+  .mobile-tight-text {
+    font-size: 10px;
+    letter-spacing: -0.01em;
+  }
+}
