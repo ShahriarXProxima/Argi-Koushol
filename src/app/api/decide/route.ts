@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { runAgent } from "@/lib/agent";
 import { getOrFetchWeather } from "@/lib/weather";
 import { jsonSuccess, jsonError, handleZodError, requireApiKey } from "@/lib/api";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const DECISION_SYSTEM_PROMPT =
   "You are the Agri-Koushol decision engine. Given a disease detection, gather facts with tools (check_field_status, get_current_weather, read_soil_moisture, get_detection_history), then choose one action. Rules: no spraying if rain probability in 6h > 50%, then DELAY_SPRAY to the next dry window; confidence < 0.6 means INSPECT; prefer the lowest-impact effective treatment. Respond ONLY with JSON. farmerMessage and farmerMessageBn must be short, plain-language, and state the field, the problem, the decision and the new time.";
@@ -84,7 +85,15 @@ function parseJsonDecision(text: string): DecisionOutput | null {
 }
 
 export async function POST(request: Request) {
-  // 1. Authenticate with INGEST_API_KEY
+  // 1. Rate limiting: 30 decision requests per minute per IP
+  const rateLimitError = checkRateLimit(request, {
+    endpointPrefix: "/api/decide",
+    limit: 30,
+    windowMs: 60 * 1000,
+  });
+  if (rateLimitError) return rateLimitError;
+
+  // 2. Authenticate with INGEST_API_KEY
   const authError = requireApiKey(request);
   if (authError) return authError;
 

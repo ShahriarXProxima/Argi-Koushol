@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { runAgent, type AgentEvent } from "@/lib/agent";
 import type { LLMMessage, LLMToolCall } from "@/lib/llm";
 import { jsonError, handleZodError } from "@/lib/api";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const CHAT_SYSTEM_PROMPT =
   "You are Shoshsho-Prohori (শস্য-প্রহরী), a friendly agronomist assistant for farmers in Bangladesh. Reply in the language the farmer wrote in (Bangla or English), in short plain sentences. Always check facts with tools before advising: check_field_status, read_soil_moisture, get_current_weather. Never guess sensor or weather values. If asked for information you do not have (like commodity or market prices, future crop prices, or general trivia), honestly say you cannot check that and never invent values or numbers. If a field is not specified, ask which field or list the fields. Never recommend spraying if rain probability is above 50% within 6 hours. If rain is expected within 6 hours, pause or skip irrigation using the pause_irrigation tool and explain why and that an automated decision was created. If disease confidence is below 0.6, recommend a manual inspection. When you take an action with a tool, tell the farmer exactly what you did and that it can be changed. Say clearly when data is simulated or stale.";
@@ -14,6 +15,14 @@ const chatRequestSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  // 1. Rate limiting: 20 chat queries per minute per IP
+  const rateLimitError = checkRateLimit(request, {
+    endpointPrefix: "/api/chat",
+    limit: 20,
+    windowMs: 60 * 1000,
+  });
+  if (rateLimitError) return rateLimitError;
+
   let body: unknown;
   try {
     body = await request.json();
@@ -96,13 +105,14 @@ export async function POST(request: Request) {
           },
         });
       } catch (streamErr: unknown) {
-        const errMessage =
-          streamErr instanceof Error ? streamErr.message : String(streamErr);
         console.error("[Chat SSE] Error in agent execution stream:", streamErr);
+
+        // Sanitize error message to prevent leaking system traces or secrets
+        const safeErrorMessage = "I encountered an error retrieving live agricultural data. Please try again.";
 
         const errorChunk = `data: ${JSON.stringify({
           type: "error",
-          data: { message: errMessage },
+          data: { message: safeErrorMessage },
         })}\n\n`;
         await writer.write(encoder.encode(errorChunk));
       } finally {

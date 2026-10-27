@@ -10,8 +10,7 @@ export async function POST() {
       message: "Demo database reset and re-seeded successfully.",
     });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : String(error);
     console.error("[POST /api/settings/reset-demo] Failed to reset demo data:", error);
-    return jsonError("INTERNAL_ERROR", `Failed to reset demo data: ${message}`, 500);
+    return jsonError("INTERNAL_ERROR", "Failed to reset demo data.", 500);
   }
 }

@@ -27,6 +27,6 @@ export async function POST(request: Request) {
     }
 
     console.error("Error processing farmer override:", error);
-    return jsonError("INTERNAL_ERROR", message, 500);
+    return jsonError("INTERNAL_ERROR", "Failed to process farmer override request.", 500);
   }
 }

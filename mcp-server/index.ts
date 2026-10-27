@@ -44,7 +44,7 @@ app.get("/health", (_req, res) => {
 // ============================================================================
 // Bearer-Token Authentication Middleware
 // ============================================================================
-const authMiddleware = (
+export const authMiddleware = (
   req: express.Request,
   res: express.Response,
   next: express.NextFunction
@@ -52,10 +52,14 @@ const authMiddleware = (
   const expectedToken = process.env.MCP_TOKEN?.trim();
 
   if (!expectedToken) {
-    console.warn(
-      "[MCP Server] Warning: MCP_TOKEN is not configured in environment."
-    );
-    return next();
+    return res.status(500).json({
+      jsonrpc: "2.0",
+      error: {
+        code: -32000,
+        message: "Server configuration error: MCP_TOKEN is not configured.",
+      },
+      id: null,
+    });
   }
 
   const authHeader = req.headers.authorization;
@@ -159,18 +163,24 @@ app.delete("/mcp", authMiddleware, (_req, res) => {
 // ============================================================================
 const PORT = Number(process.env.MCP_PORT || 3001);
 
-const server = app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🌾 Agri-Koushol MCP Server running on http://0.0.0.0:${PORT}`);
-  console.log(`📡 MCP Endpoint: http://localhost:${PORT}/mcp`);
-  console.log(`💚 Health Check: http://localhost:${PORT}/health`);
-});
+let server: import("http").Server | undefined;
 
-process.on("SIGINT", () => {
-  console.log("[MCP Server] Shutting down gracefully...");
-  server.close(() => process.exit(0));
-});
+if (process.env.NODE_ENV !== "test") {
+  server = app.listen(PORT, "0.0.0.0", () => {
+    console.log(`🌾 Agri-Koushol MCP Server running on http://0.0.0.0:${PORT}`);
+    console.log(`📡 MCP Endpoint: http://localhost:${PORT}/mcp`);
+    console.log(`💚 Health Check: http://localhost:${PORT}/health`);
+  });
 
-process.on("SIGTERM", () => {
-  console.log("[MCP Server] Shutting down gracefully...");
-  server.close(() => process.exit(0));
-});
+  process.on("SIGINT", () => {
+    console.log("[MCP Server] Shutting down gracefully...");
+    server?.close(() => process.exit(0));
+  });
+
+  process.on("SIGTERM", () => {
+    console.log("[MCP Server] Shutting down gracefully...");
+    server?.close(() => process.exit(0));
+  });
+}
+
+export { app, server };

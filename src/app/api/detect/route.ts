@@ -6,6 +6,12 @@ import { supabase } from "@/lib/supabase";
 import { classifyLeafImage } from "@/lib/llm";
 import { runPipeline } from "@/lib/pipeline";
 import { jsonSuccess, jsonError, handleZodError } from "@/lib/api";
+import { checkRateLimit } from "@/lib/rate-limit";
+
+// Maximum upload size: 5 MB
+const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
+const ALLOWED_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+const ALLOWED_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp"]);
 
 const stagedRequestSchema = z.object({
   fieldId: z.string().min(1, "fieldId is required"),
@@ -52,6 +58,14 @@ async function storeUploadedFile(file: File, filename: string): Promise<string> 
 }
 
 export async function POST(request: Request) {
+  // 1. Rate limiting: 15 detection requests per minute per IP
+  const rateLimitError = checkRateLimit(request, {
+    endpointPrefix: "/api/detect",
+    limit: 15,
+    windowMs: 60 * 1000,
+  });
+  if (rateLimitError) return rateLimitError;
+
   try {
     const contentType = request.headers.get("content-type") || "";
 
@@ -70,15 +84,36 @@ export async function POST(request: Request) {
       const file = (formData.get("image") || formData.get("file")) as File | null;
 
       if (!formFieldId || typeof formFieldId !== "string") {
-        return jsonError("BAD_REQUEST", "fieldId is required in form-data", 400);
+        return jsonError("BAD_REQUEST", "fieldId is required in form-data.", 400);
       }
       fieldId = formFieldId;
 
       if (!file) {
-        return jsonError("BAD_REQUEST", "An image file is required in form-data", 400);
+        return jsonError("BAD_REQUEST", "An image file is required in form-data.", 400);
       }
 
-      const fileExt = file.name ? path.extname(file.name) || ".jpg" : ".jpg";
+      // Validate File Size
+      if (file.size > MAX_UPLOAD_BYTES) {
+        return jsonError(
+          "PAYLOAD_TOO_LARGE",
+          "File size exceeds the 5MB upload limit.",
+          413
+        );
+      }
+
+      // Validate MIME Type
+      if (!ALLOWED_MIME_TYPES.has(file.type.toLowerCase())) {
+        return jsonError(
+          "UNSUPPORTED_MEDIA_TYPE",
+          "Invalid file type. Only JPEG, PNG, and WebP images are allowed.",
+          415
+        );
+      }
+
+      // Validate Extension
+      const rawExt = file.name ? path.extname(file.name).toLowerCase() : ".jpg";
+      const fileExt = ALLOWED_EXTENSIONS.has(rawExt) ? rawExt : ".jpg";
+
       const filename = `leaf_${Date.now()}_${Math.random().toString(36).slice(2, 8)}${fileExt}`;
       imageUrl = await storeUploadedFile(file, filename);
 
@@ -94,7 +129,7 @@ export async function POST(request: Request) {
       try {
         body = await request.json();
       } catch {
-        return jsonError("BAD_REQUEST", "Invalid JSON payload", 400);
+        return jsonError("BAD_REQUEST", "Invalid JSON payload.", 400);
       }
 
       const parsed = stagedRequestSchema.safeParse(body);
@@ -103,7 +138,9 @@ export async function POST(request: Request) {
       }
 
       fieldId = parsed.data.fieldId;
-      stagedImageName = parsed.data.stagedImage.replace(/\.[^/.]+$/, ""); // normalize key
+      // Prevent directory traversal attacks by taking only the basename
+      const safeBasename = path.basename(parsed.data.stagedImage).replace(/\.[^/.]+$/, "");
+      stagedImageName = safeBasename;
 
       // Map stagedImage to public path
       imageUrl = `/demo-leaves/${stagedImageName}.png`;
@@ -125,7 +162,7 @@ export async function POST(request: Request) {
     });
 
     if (!field) {
-      return jsonError("NOT_FOUND", `Field not found with ID '${fieldId}'`, 404);
+      return jsonError("NOT_FOUND", `Field not found with ID '${fieldId}'.`, 404);
     }
 
     // ------------------------------------------------------------------------
@@ -182,8 +219,8 @@ export async function POST(request: Request) {
       pipeline: pipelineResult,
     });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : String(error);
     console.error("[POST /api/detect] Error processing detection:", error);
-    return jsonError("INTERNAL_ERROR", `Detection processing failed: ${message}`, 500);
+    // Never expose raw stack traces or internal errors to client
+    return jsonError("INTERNAL_ERROR", "Failed to process leaf detection.", 500);
   }
 }
